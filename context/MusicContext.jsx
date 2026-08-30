@@ -204,58 +204,60 @@ export function MusicProvider({ children }) {
       let follows = [];
       let currentUser = savedSession;
 
-      if (isSupabaseEnabled()) {
-        try {
-          const supaUser = await getCurrentUser();
-          if (supaUser) {
-            currentUser = {
-              id: supaUser.id,
-              email: supaUser.email,
-              name: supaUser.user_metadata?.name || supaUser.email,
-              role: 'user',
-              isVerified: false
-            };
-            setSession(currentUser);
-            localStorage.setItem('spotify-clone-session', JSON.stringify(currentUser));
+      try {
+        if (isSupabaseEnabled()) {
+          try {
+            const supaUser = await getCurrentUser();
+            if (supaUser) {
+              currentUser = {
+                id: supaUser.id,
+                email: supaUser.email,
+                name: supaUser.user_metadata?.name || supaUser.email,
+                role: 'user',
+                isVerified: false
+              };
+              setSession(currentUser);
+              localStorage.setItem('spotify-clone-session', JSON.stringify(currentUser));
+            }
+            const uid = currentUser?.id;
+            [tracks, pls, albs, likes, hist, notes, sett, follows] = await Promise.all([
+              loadTracks(),
+              loadPlaylists(uid),
+              loadAlbums(),
+              uid ? loadLikes(uid) : Promise.resolve([]),
+              uid ? loadHistory(uid) : Promise.resolve([]),
+              uid ? loadNotifications(uid) : Promise.resolve([]),
+              uid ? loadSettings(uid) : Promise.resolve(null),
+              uid ? loadFollows(uid) : Promise.resolve([])
+            ]);
+          } catch (e) {
+            console.error('Supabase init error:', e);
           }
-          const uid = currentUser?.id;
+        }
+
+        if (!isSupabaseEnabled() || tracks.length === 0) {
           [tracks, pls, albs, likes, hist, notes, sett, follows] = await Promise.all([
             loadTracks(),
-            loadPlaylists(uid),
+            loadPlaylists(),
             loadAlbums(),
-            uid ? loadLikes(uid) : Promise.resolve([]),
-            uid ? loadHistory(uid) : Promise.resolve([]),
-            uid ? loadNotifications(uid) : Promise.resolve([]),
-            uid ? loadSettings(uid) : Promise.resolve(null),
-            uid ? loadFollows(uid) : Promise.resolve([])
+            savedSession?.id ? loadLikes(savedSession.id) : Promise.resolve([]),
+            savedSession?.id ? loadHistory(savedSession.id) : Promise.resolve([]),
+            savedSession?.id ? loadNotifications(savedSession.id) : Promise.resolve([]),
+            savedSession?.id ? loadSettings(savedSession.id) : Promise.resolve({ userId: savedSession?.id, language: savedLanguage, theme: savedTheme, autoplay: true, privateProfile: false }),
+            savedSession?.id ? loadFollows(savedSession.id) : Promise.resolve([])
           ]);
-        } catch (e) {
-          console.error('Supabase init error:', e);
         }
+      } finally {
+        if (Array.isArray(tracks)) setUserTracks(tracks);
+        if (Array.isArray(pls)) setPlaylists(pls);
+        if (Array.isArray(albs)) setAlbums(albs);
+        if (Array.isArray(likes)) setLikedTrackIds(likes.map((l) => l.trackId));
+        if (Array.isArray(hist)) setHistory(hist);
+        if (Array.isArray(notes)) setNotifications(notes);
+        if (sett) setSettings((prev) => ({ ...prev, ...sett }));
+        if (Array.isArray(follows)) setFollowingIds(follows);
+        setHydrated(true);
       }
-
-      if (!isSupabaseEnabled() || tracks.length === 0) {
-        [tracks, pls, albs, likes, hist, notes, sett, follows] = await Promise.all([
-          loadTracks(),
-          loadPlaylists(),
-          loadAlbums(),
-          savedSession?.id ? loadLikes(savedSession.id) : Promise.resolve([]),
-          savedSession?.id ? loadHistory(savedSession.id) : Promise.resolve([]),
-          savedSession?.id ? loadNotifications(savedSession.id) : Promise.resolve([]),
-          savedSession?.id ? loadSettings(savedSession.id) : Promise.resolve({ userId: savedSession?.id, language: savedLanguage, theme: savedTheme, autoplay: true, privateProfile: false }),
-          savedSession?.id ? loadFollows(savedSession.id) : Promise.resolve([])
-        ]);
-      }
-
-      if (Array.isArray(tracks)) setUserTracks(tracks);
-      if (Array.isArray(pls)) setPlaylists(pls);
-      if (Array.isArray(albs)) setAlbums(albs);
-      if (Array.isArray(likes)) setLikedTrackIds(likes.map((l) => l.trackId));
-      if (Array.isArray(hist)) setHistory(hist);
-      if (Array.isArray(notes)) setNotifications(notes);
-      if (sett) setSettings((prev) => ({ ...prev, ...sett }));
-      if (Array.isArray(follows)) setFollowingIds(follows);
-      setHydrated(true);
     };
 
     init();

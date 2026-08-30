@@ -1,11 +1,9 @@
-// Service Worker para GrooveFlow
+// Service Worker para VOLTAGE MUSIC
 
-const CACHE_NAME = 'grooveflow-v1';
+const CACHE_NAME = 'voltage-music-v1';
 const urlsToCache = [
   '/',
-  '/manifest.json',
-  '/android-chrome-192x192.png',
-  '/android-chrome-512x512.png'
+  '/manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
@@ -13,7 +11,9 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('Cache abierto');
-        return cache.addAll(urlsToCache);
+        return cache.addAll(urlsToCache).catch(() => {
+          console.log('Algunos archivos no se pudieron cachear');
+        });
       })
   );
 });
@@ -22,11 +22,12 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Devuelve la caché si se encuentra
         if (response) {
           return response;
         }
-        return fetch(event.request);
+        return fetch(event.request).catch(() => {
+          return new Response('Offline');
+        });
       }
     )
   );
