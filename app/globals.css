@@ -1077,6 +1077,11 @@ input[type='range'] {
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
   z-index: 50;
+  display: none;
+}
+
+.queue-panel.open {
+  display: block;
 }
 
 .queue-header {

@@ -6,11 +6,11 @@ import { formatTime } from '../lib/utils';
 import CoverArt from './CoverArt';
 
 export default function QueuePanel() {
-  const { queueTracks, selectedTrack, playQueueTrack, reorderQueue, setQueueOpen, translate } = useMusic();
+  const { queueTracks, selectedTrack, playQueueTrack, reorderQueue, setQueueOpen, queueOpen, translate } = useMusic();
   const [dragIndex, setDragIndex] = useState(null);
 
   return (
-    <aside className="queue-panel" aria-label="Cola de reproduccion">
+    <aside className={`queue-panel ${queueOpen ? 'open' : ''}`} aria-label="Cola de reproduccion">
       <div className="queue-header">
         <div>
           <span className="eyebrow">{translate('queue.title')}</span>
