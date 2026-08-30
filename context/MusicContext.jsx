@@ -10,10 +10,10 @@ import {
   playlistData
 } from '../lib/data';
 import {
-  deleteAlbumFromDb,
+  deleteAlbum,
   deleteLike,
-  deletePlaylistFromDb,
-  deleteTrackFromDb,
+  deletePlaylist,
+  deleteTrack,
   getFollowersOf,
   loadAlbums,
   loadFollows,
@@ -22,15 +22,20 @@ import {
   loadNotifications,
   loadPlaylists,
   loadSettings,
-  loadTracksFromDb,
+  loadTracks,
   saveAlbum,
   saveHistoryItem,
   saveLike,
   saveNotification,
   savePlaylist,
   saveSettings,
-  saveTrackToDb,
-  toggleFollow
+  saveTrack,
+  toggleFollow,
+  signIn as supabaseSignIn,
+  signUp as supabaseSignUp,
+  signOut as supabaseSignOut,
+  getCurrentUser,
+  isSupabaseEnabled
 } from '../lib/db';
 import { t } from '../lib/i18n';
 import { buildShareCode, getGreeting, hashPassword, parseShareCode, readFileAsDataUrl, verifyPassword } from '../lib/utils';
@@ -168,7 +173,6 @@ export function MusicProvider({ children }) {
 
   useEffect(() => {
     const savedUsers = JSON.parse(localStorage.getItem('spotify-clone-users') || 'null');
-    const savedSession = JSON.parse(localStorage.getItem('spotify-clone-session') || 'null');
     const savedTheme = localStorage.getItem('grooveflow-theme') || 'dark';
     const savedLanguage = localStorage.getItem('grooveflow-language') || 'es';
 
@@ -185,20 +189,64 @@ export function MusicProvider({ children }) {
       localStorage.setItem('spotify-clone-users', JSON.stringify(migrated));
     }
 
+    const savedSession = JSON.parse(localStorage.getItem('spotify-clone-session') || 'null');
     if (savedSession?.email) setSession(savedSession);
     setSettings((prev) => ({ ...prev, theme: savedTheme, language: savedLanguage }));
 
-    const uid = savedSession?.id;
-    Promise.all([
-      loadTracksFromDb(),
-      loadPlaylists(),
-      loadAlbums(),
-      uid ? loadLikes(uid) : Promise.resolve([]),
-      uid ? loadHistory(uid) : Promise.resolve([]),
-      uid ? loadNotifications(uid) : Promise.resolve([]),
-      uid ? loadSettings(uid) : Promise.resolve({ userId: uid, language: savedLanguage, theme: savedTheme, autoplay: true, privateProfile: false }),
-      uid ? loadFollows(uid) : Promise.resolve([])
-    ]).then(([tracks, pls, albs, likes, hist, notes, sett, follows]) => {
+    const init = async () => {
+      let tracks = [];
+      let pls = [];
+      let albs = [];
+      let likes = [];
+      let hist = [];
+      let notes = [];
+      let sett = null;
+      let follows = [];
+      let currentUser = savedSession;
+
+      if (isSupabaseEnabled()) {
+        try {
+          const supaUser = await getCurrentUser();
+          if (supaUser) {
+            currentUser = {
+              id: supaUser.id,
+              email: supaUser.email,
+              name: supaUser.user_metadata?.name || supaUser.email,
+              role: 'user',
+              isVerified: false
+            };
+            setSession(currentUser);
+            localStorage.setItem('spotify-clone-session', JSON.stringify(currentUser));
+          }
+          const uid = currentUser?.id;
+          [tracks, pls, albs, likes, hist, notes, sett, follows] = await Promise.all([
+            loadTracks(),
+            loadPlaylists(uid),
+            loadAlbums(),
+            uid ? loadLikes(uid) : Promise.resolve([]),
+            uid ? loadHistory(uid) : Promise.resolve([]),
+            uid ? loadNotifications(uid) : Promise.resolve([]),
+            uid ? loadSettings(uid) : Promise.resolve(null),
+            uid ? loadFollows(uid) : Promise.resolve([])
+          ]);
+        } catch (e) {
+          console.error('Supabase init error:', e);
+        }
+      }
+
+      if (!isSupabaseEnabled() || tracks.length === 0) {
+        [tracks, pls, albs, likes, hist, notes, sett, follows] = await Promise.all([
+          loadTracks(),
+          loadPlaylists(),
+          loadAlbums(),
+          savedSession?.id ? loadLikes(savedSession.id) : Promise.resolve([]),
+          savedSession?.id ? loadHistory(savedSession.id) : Promise.resolve([]),
+          savedSession?.id ? loadNotifications(savedSession.id) : Promise.resolve([]),
+          savedSession?.id ? loadSettings(savedSession.id) : Promise.resolve({ userId: savedSession?.id, language: savedLanguage, theme: savedTheme, autoplay: true, privateProfile: false }),
+          savedSession?.id ? loadFollows(savedSession.id) : Promise.resolve([])
+        ]);
+      }
+
       if (Array.isArray(tracks)) setUserTracks(tracks);
       if (Array.isArray(pls)) setPlaylists(pls);
       if (Array.isArray(albs)) setAlbums(albs);
@@ -208,7 +256,9 @@ export function MusicProvider({ children }) {
       if (sett) setSettings((prev) => ({ ...prev, ...sett }));
       if (Array.isArray(follows)) setFollowingIds(follows);
       setHydrated(true);
-    });
+    };
+
+    init();
 
     const onBeforeInstall = (e) => {
       e.preventDefault();
@@ -236,7 +286,7 @@ export function MusicProvider({ children }) {
     if (!hydrated) return;
     localStorage.setItem('grooveflow-theme', settings.theme);
     localStorage.setItem('grooveflow-language', settings.language);
-    if (session) saveSettings({ ...settings, userId: session.id });
+    if (session) saveSettings(session.id, settings);
   }, [settings, session, hydrated]);
 
   useEffect(() => {
@@ -416,7 +466,7 @@ export function MusicProvider({ children }) {
     }
   };
 
-  const handleAuthSubmit = (event) => {
+  const handleAuthSubmit = async (event) => {
     event.preventDefault();
     if (authMode === 'register') {
       if (!authForm.name || !authForm.email || !authForm.password) {
@@ -426,6 +476,26 @@ export function MusicProvider({ children }) {
       if (users.some((u) => u.email.toLowerCase() === authForm.email.toLowerCase())) {
         alert(lang === 'en' ? 'Email already exists.' : 'Ya existe una cuenta con ese correo.');
         return;
+      }
+      if (isSupabaseEnabled()) {
+        try {
+          const data = await supabaseSignUp(authForm.email, authForm.password, authForm.name);
+          const newUser = {
+            id: data.user?.id || Date.now(),
+            name: authForm.name,
+            email: authForm.email,
+            role: 'user',
+            isVerified: false
+          };
+          setUsers((prev) => [...prev, newUser]);
+          setSession(newUser);
+          setAuthForm({ name: '', email: '', password: '' });
+          router.push('/home');
+          return;
+        } catch (error) {
+          alert(error.message || 'Error al registrarse');
+          return;
+        }
       }
       const newUser = {
         id: Date.now(),
@@ -441,9 +511,30 @@ export function MusicProvider({ children }) {
       router.push('/home');
       return;
     }
+    if (isSupabaseEnabled()) {
+      try {
+        const data = await supabaseSignIn(authForm.email, authForm.password);
+        const supaUser = data.user;
+        const localUser = users.find((u) => u.email.toLowerCase() === authForm.email.toLowerCase());
+        const user = {
+          id: supaUser.id,
+          email: supaUser.email,
+          name: supaUser.user_metadata?.name || localUser?.name || supaUser.email,
+          role: localUser?.role || 'user',
+          isVerified: localUser?.isVerified || false
+        };
+        setSession(user);
+        setAuthForm({ name: '', email: '', password: '' });
+        router.push('/home');
+        return;
+      } catch (error) {
+        alert(error.message || 'Credenciales incorrectas');
+        return;
+      }
+    }
     const user = users.find((u) => u.email.toLowerCase() === authForm.email.toLowerCase() && verifyPassword(authForm.password, u.password));
     if (!user) {
-      alert(lang === 'en' ? 'Invalid credentials. Use demo@demo.com / 123456' : 'Credenciales incorrectas. Usa demo@demo.com / 123456');
+      alert(lang === 'en' ? 'Invalid credentials.' : 'Credenciales incorrectas');
       return;
     }
     setSession(user);
@@ -451,7 +542,8 @@ export function MusicProvider({ children }) {
     router.push('/home');
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabaseSignOut();
     setSession(null);
     setIsPlaying(false);
     router.push('/');
@@ -465,7 +557,13 @@ export function MusicProvider({ children }) {
     }
     const artist = users.find((u) => u.id === Number(uploadForm.artistId));
     if (!artist || !uploadForm.file) return;
-    const url = await readFileAsDataUrl(uploadForm.file);
+    let url = '';
+    if (isSupabaseEnabled() && uploadForm.file) {
+      url = await uploadAudio(uploadForm.file, session.id) || '';
+    }
+    if (!url) {
+      url = await readFileAsDataUrl(uploadForm.file);
+    }
     const newTrack = {
       id: Date.now(),
       title: uploadForm.title,
@@ -479,7 +577,7 @@ export function MusicProvider({ children }) {
       isPodcast: uploadForm.isPodcast || false,
       url
     };
-    await saveTrackToDb(newTrack);
+    await saveTrack(newTrack);
     setUserTracks((prev) => [...prev, newTrack]);
     setUploadForm({ artistId: '', title: '', album: '', genre: '', mood: '', isPodcast: false, coverUrl: '', file: null });
 
@@ -546,7 +644,7 @@ export function MusicProvider({ children }) {
     if (userTracks.some((t) => t.id === editTrack.id)) {
       setUserTracks((prev) => prev.map((track) => (track.id === editTrack.id ? { ...track, ...updated } : track)));
       const track = userTracks.find((t) => t.id === editTrack.id);
-      if (track) await saveTrackToDb({ ...track, ...updated });
+      if (track) await saveTrack({ ...track, ...updated });
     } else {
       setBaseTrackOverrides((prev) => ({ ...prev, [editTrack.id]: updated }));
     }
@@ -609,7 +707,7 @@ export function MusicProvider({ children }) {
     handleAuthSubmit, logout, handleUploadTrack, createPlaylist, createAlbum,
     saveTrackEdit, canViewProfile, installApp, skipPodcast,
     deleteUserTrack: async (trackId) => {
-      await deleteTrackFromDb(trackId);
+      await deleteTrack(trackId);
       setUserTracks((prev) => prev.filter((t) => t.id !== trackId));
       if (selectedTrackId === trackId) {
         setSelectedTrackId(allTracks[0]?.id || 1);
@@ -617,11 +715,11 @@ export function MusicProvider({ children }) {
       }
     },
     deletePlaylist: async (id) => {
-      await deletePlaylistFromDb(id);
+      await deletePlaylist(id);
       setPlaylists((prev) => prev.filter((p) => p.id !== id));
     },
     deleteAlbum: async (id) => {
-      await deleteAlbumFromDb(id);
+      await deleteAlbum(id);
       setAlbums((prev) => prev.filter((a) => a.id !== id));
     },
     saveProfile: async () => {
