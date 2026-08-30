@@ -1,7 +1,7 @@
 {
-  "name": "GrooveFlow",
-  "short_name": "GrooveFlow",
-  "description": "Una experiencia musical moderna inspirada en Spotify.",
+  "name": "VOLTAGE MUSIC",
+  "short_name": "VOLTAGE MUSIC",
+  "description": "Una experiencia musical moderna.",
   "start_url": "/home",
   "display": "standalone",
   "background_color": "#000000",

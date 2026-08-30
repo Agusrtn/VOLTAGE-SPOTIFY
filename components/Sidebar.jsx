@@ -19,7 +19,7 @@ export default function Sidebar() {
       <section className="sidebar-card nav-card">
         <div className="brand">
           <span className="brand-mark wave-mark" aria-hidden="true"><i /></span>
-          <span>GrooveFlow</span>
+          <span>VOLTAGE MUSIC</span>
         </div>
 
         <nav className="nav-menu" aria-label="Navegacion principal">

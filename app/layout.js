@@ -2,8 +2,8 @@ import ClientLayout from './ClientLayout';
 import './globals.css';
 
 export const metadata = {
-  title: 'GrooveFlow',
-  description: 'Una experiencia musical moderna inspirada en Spotify.',
+  title: 'VOLTAGE MUSIC',
+  description: 'Una experiencia musical moderna.',
   manifest: '/manifest.json',
 };
 

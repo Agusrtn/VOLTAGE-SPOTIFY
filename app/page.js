@@ -137,7 +137,7 @@ export default function RootPage() {
           <div className="brand-mark wave-mark" style={{ width: 48, height: 48, margin: '0 auto 16px', display: 'grid', placeItems: 'center', borderRadius: '50%', background: 'var(--green)', color: '#041407', position: 'relative' }}>
             <i style={{ position: 'absolute', left: 9, width: 16, height: 7, borderTop: '2px solid #061207', borderRadius: '50%', transform: 'rotate(18deg)', top: 11 }} />
           </div>
-          <p>Cargando GrooveFlow...</p>
+          <p>Cargando VOLTAGE MUSIC...</p>
         </div>
       </div>
     );
