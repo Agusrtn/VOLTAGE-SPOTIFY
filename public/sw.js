@@ -1,6 +1,6 @@
 // Service Worker para VOLTAGE MUSIC
 
-const CACHE_NAME = 'voltage-music-v2';
+const CACHE_NAME = 'voltage-music-v3';
 const urlsToCache = [
   '/',
   '/manifest.json'
@@ -17,6 +17,7 @@ self.addEventListener('install', (event) => {
       })
   );
   self.skipWaiting();
+  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
