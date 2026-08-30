@@ -129,16 +129,16 @@ export function MusicProvider({ children }) {
   );
 
   const userPlaylists = useMemo(
-    () => (session ? [likesPlaylist, ...playlists.filter((p) => p.userId === session.id)] : []),
+    () => (session ? [likesPlaylist, ...(playlists || []).filter((p) => p.userId === session.id)] : []),
     [likesPlaylist, playlists, session]
   );
 
   const recommendedTracks = useMemo(() => {
-    const historyIds = history.slice(0, 10).map((h) => h.trackId);
-    const scored = allTracks.map((track) => {
+    const historyIds = (history || []).slice(0, 10).map((h) => h.trackId);
+    const scored = (allTracks || []).map((track) => {
       let score = 0;
       if (track.mood === activeMood) score += 3;
-      if (likedTrackIds.includes(track.id)) score += 2;
+      if ((likedTrackIds || []).includes(track.id)) score += 2;
       if (historyIds.includes(track.id)) score += 1;
       return { track, score };
     });
@@ -146,12 +146,12 @@ export function MusicProvider({ children }) {
   }, [allTracks, activeMood, likedTrackIds, history]);
 
   const moodPlaylists = useMemo(
-    () => playlistData.filter((p) => p.mood === activeMood || activeMood === 'Night drive'),
+    () => (playlistData || []).filter((p) => p.mood === activeMood || activeMood === 'Night drive'),
     [activeMood]
   );
 
   const queueTracks = useMemo(() => {
-    const base = customQueue || allTracks;
+    const base = customQueue || (allTracks || []);
     if (isShuffle) {
       const shuffled = [...base].sort(() => Math.random() - 0.5);
       return shuffled.filter((track) => track.id !== selectedTrackId);
@@ -163,12 +163,12 @@ export function MusicProvider({ children }) {
 
   const stats = useMemo(() => {
     const counts = {};
-    history.forEach((item) => {
-      const track = allTracks.find((t) => t.id === item.trackId);
+    (history || []).forEach((item) => {
+      const track = (allTracks || []).find((t) => t.id === item.trackId);
       if (track) counts[track.artist] = (counts[track.artist] || 0) + 1;
     });
     const topArtist = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
-    return { topArtist: topArtist?.[0] || '-', plays: history.length };
+    return { topArtist: topArtist?.[0] || '-', plays: (history || []).length };
   }, [history, allTracks]);
 
   useEffect(() => {
