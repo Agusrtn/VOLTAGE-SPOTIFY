@@ -24,7 +24,7 @@ function GuestHome() {
           <h1>Bienvenido a GrooveFlow</h1>
         </div>
         <div className="quick-grid">
-          {allTracks.map((track) => (
+          {(allTracks || []).map((track) => (
             <button key={track.id} type="button" className={`quick-card ${selectedTrack.id === track.id ? 'selected' : ''}`} onClick={() => playTrack(track.id)}>
               <div className={`cover-art ${track.accent} quick-cover`} aria-hidden="true">
                 <span>{track.title.slice(0, 1)}</span>
@@ -46,8 +46,8 @@ function GuestHome() {
           </div>
         </div>
         <div className="playlist-grid">
-          {playlistData.map((playlist, index) => {
-            const playlistTrack = allTracks[index % allTracks.length];
+          {(playlistData || []).map((playlist, index) => {
+            const playlistTrack = (allTracks || [])[index % (allTracks || []).length];
             const playlistIsPlaying = selectedTrack.id === playlistTrack.id && isPlaying;
             return (
               <article key={playlist.title} className="playlist-card">
@@ -76,7 +76,7 @@ function GuestHome() {
           <div className="section-heading compact">
             <div>
               <h2>Canciones recomendadas</h2>
-              <span>{recommendedTracks.length} canciones</span>
+              <span>{(recommendedTracks || []).length} canciones</span>
             </div>
           </div>
           <div className="track-list">
