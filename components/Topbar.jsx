@@ -9,7 +9,7 @@ export default function Topbar() {
   const {
     search, setSearch, session, settings, setSettings, logout,
     notifications, setNotifications, notificationsOpen, setNotificationsOpen,
-    installApp, translate, authMode, setAuthMode
+    installApp, translate, settingsOpen, setSettingsOpen
   } = useMusic();
 
   const unread = notifications.filter((n) => !n.read && n.userId === session?.id).length;
@@ -66,6 +66,9 @@ export default function Topbar() {
               onClick={() => setSettings((prev) => ({ ...prev, theme: prev.theme === 'dark' ? 'light' : 'dark' }))}
             >
               <span aria-hidden="true">{settings.theme === 'dark' ? '\u2600\uFE0F' : '\u{1F319}'}</span>
+            </button>
+            <button type="button" className="icon-btn subtle" aria-label="Configuracion" onClick={() => setSettingsOpen(true)}>
+              <span aria-hidden="true">&#x2699;</span>
             </button>
             <button type="button" className="install-btn" onClick={installApp}>{translate('common.install')}</button>
             <button type="button" className="secondary-btn" onClick={logout}>{translate('common.logout')}</button>

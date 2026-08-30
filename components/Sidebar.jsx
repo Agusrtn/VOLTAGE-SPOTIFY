@@ -29,6 +29,12 @@ export default function Sidebar() {
               {translate(item.labelKey)}
             </Link>
           ))}
+          {(session?.role === 'admin' || session?.role === 'label') && (
+            <Link href="/label" className={`nav-item ${isActive('/label') ? 'active' : ''}`}>
+              <span aria-hidden="true">&#x266B;</span>
+              Discografica
+            </Link>
+          )}
           {session?.role === 'admin' && (
             <Link href="/staff" className={`nav-item ${isActive('/staff') ? 'active' : ''}`}>
               <span aria-hidden="true">&#x2699;</span>
@@ -41,14 +47,6 @@ export default function Sidebar() {
               {translate('nav.profile')}
             </Link>
           )}
-          <button type="button" className="nav-item" onClick={() => router.push('/settings')}>
-            <span aria-hidden="true">&#x2699;</span>
-            {translate('nav.settings')}
-          </button>
-          <Link href="/history" className={`nav-item ${isActive('/history') ? 'active' : ''}`}>
-            <span aria-hidden="true">&#x1F504;</span>
-            {translate('nav.history')}
-          </Link>
         </nav>
       </section>
 
