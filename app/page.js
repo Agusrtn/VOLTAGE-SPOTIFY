@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useMusic } from '../context/MusicContext';
 import AuthShell from '../components/AuthShell';
 import AppShell from '../components/AppShell';
@@ -21,7 +21,7 @@ function GuestHome() {
       <section className="home-hero">
         <div className="hero-heading">
           <span className="eyebrow">{translate('home.playlistOfDay')}</span>
-          <h1>Bienvenido a GrooveFlow</h1>
+          <h1>Bienvenido a VOLTAGE MUSIC</h1>
         </div>
         <div className="quick-grid">
           {(allTracks || []).map((track) => (
