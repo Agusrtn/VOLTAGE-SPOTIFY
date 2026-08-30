@@ -714,6 +714,11 @@ export function MusicProvider({ children }) {
         setIsPlaying(false);
       }
     },
+    deleteAllTracks: async () => {
+      const ids = userTracks.map((t) => t.id);
+      await Promise.all(ids.map((id) => deleteTrack(id)));
+      setUserTracks([]);
+    },
     deletePlaylist: async (id) => {
       await deletePlaylist(id);
       setPlaylists((prev) => prev.filter((p) => p.id !== id));
@@ -749,6 +754,60 @@ export function MusicProvider({ children }) {
       setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, password: hashPassword(newPass) } : u)));
       localStorage.setItem('spotify-clone-users', JSON.stringify(users.map((u) => (u.id === userId ? { ...u, password: hashPassword(newPass) } : u))));
     },
+    clearNonAdminUserData: async () => {
+      if (!session || session.role !== 'admin') return;
+      const nonAdmins = users.filter((u) => u.role !== 'admin');
+      for (const user of nonAdmins) {
+        await Promise.all([
+          loadLikes(user.id).then((likes) => Promise.all(likes.map((l) => deleteLike(user.id, l.trackId)))),
+          loadHistory(user.id).then((hist) => Promise.all(hist.map((h) => saveHistoryItem({ ...h, _deleted: true })))),
+          loadNotifications(user.id).then((notes) => Promise.all(notes.map((n) => saveNotification({ ...n, _deleted: true })))),
+          loadFollows(user.id).then((follows) => Promise.all(follows.map((f) => toggleFollow(user.id, f)))),
+          loadPlaylists(user.id).then((pls) => Promise.all(pls.map((p) => deletePlaylist(p.id))))
+        ]);
+      }
+      setLikedTrackIds([]);
+      setHistory([]);
+      setNotifications([]);
+      setFollowingIds([]);
+      setPlaylists((prev) => prev.filter((p) => p.userId === session.id));
+    },
+    createAdminPlaylist: async (name, coverUrl, trackIds) => {
+      if (!session || session.role !== 'admin') return;
+      const playlist = {
+        id: Date.now(),
+        name,
+        userId: session.id,
+        trackIds: trackIds || [],
+        coverUrl: coverUrl || '',
+        createdAt: new Date().toISOString()
+      };
+      await savePlaylist(playlist);
+      setPlaylists((prev) => [...prev, playlist]);
+      return playlist;
+    },
+    addTrackToPlaylist: async (playlistId, trackId) => {
+      const playlist = playlists.find((p) => p.id === playlistId);
+      if (!playlist || playlist.trackIds.includes(trackId)) return;
+      await savePlaylist({ ...playlist, trackIds: [...playlist.trackIds, trackId] });
+      setPlaylists((prev) => prev.map((p) => (p.id === playlistId ? { ...p, trackIds: [...p.trackIds, trackId] } : p)));
+    },
+    removeTrackFromPlaylist: async (playlistId, trackId) => {
+      const playlist = playlists.find((p) => p.id === playlistId);
+      if (!playlist) return;
+      await savePlaylist({ ...playlist, trackIds: playlist.trackIds.filter((id) => id !== trackId) });
+      setPlaylists((prev) => prev.map((p) => (p.id === playlistId ? { ...p, trackIds: p.trackIds.filter((id) => id !== trackId) } : p)));
+    },
+    setPlaylistCover: async (playlistId, coverUrl) => {
+      const playlist = playlists.find((p) => p.id === playlistId);
+      if (!playlist) return;
+      await savePlaylist({ ...playlist, coverUrl });
+      setPlaylists((prev) => prev.map((p) => (p.id === playlistId ? { ...p, coverUrl } : p)));
+    },
+    createAdminPlaylist,
+    addTrackToPlaylist,
+    removeTrackFromPlaylist,
+    clearNonAdminUserData,
     openShare: (type, id, name) => {
       setShareData({ type, id, name });
       setShareOpen(true);
