@@ -35,8 +35,8 @@ import {
   signUp as supabaseSignUp,
   signOut as supabaseSignOut,
   getCurrentUser,
-  isSupabaseEnabled
 } from '../lib/db';
+import { isSupabaseEnabled } from '../lib/supabase';
 import { t } from '../lib/i18n';
 import { buildShareCode, getGreeting, hashPassword, parseShareCode, readFileAsDataUrl, verifyPassword } from '../lib/utils';
 
