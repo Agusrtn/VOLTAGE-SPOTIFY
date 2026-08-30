@@ -267,9 +267,6 @@ export function MusicProvider({ children }) {
       setInstallPrompt(e);
     };
     window.addEventListener('beforeinstallprompt', onBeforeInstall);
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
-    }
     return () => window.removeEventListener('beforeinstallprompt', onBeforeInstall);
   }, []);
 
