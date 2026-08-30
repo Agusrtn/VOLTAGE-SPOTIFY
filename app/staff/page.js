@@ -1,15 +1,32 @@
 'use client';
 
-'use client';
-
+import { useState } from 'react';
 import { useMusic } from '../../context/MusicContext';
 import AppShell from '../../components/AppShell';
 import CoverArt from '../../components/CoverArt';
 
 export default function StaffPage() {
-  const { users, toggleUserVerified, toggleUserArtist, toggleUserLabel, translate, session, handleUploadTrack, uploadForm, setUploadForm, userTracks, deleteUserTrack, playTrack, selectedTrack, isPlaying } = useMusic();
+  const { users, toggleUserVerified, toggleUserArtist, toggleUserLabel, translate, session, deleteUserAccount, resetUserPassword } = useMusic();
+  const [resetTarget, setResetTarget] = useState(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const canUpload = session && (session.role === 'admin' || session.role === 'label');
+  const isAdmin = session?.role === 'admin';
+
+  if (!isAdmin) {
+    return (
+      <AppShell>
+        <section className="tab-panel">
+          <div className="section-heading hero-heading">
+            <div>
+              <h1>Acceso denegado</h1>
+              <span>Solo los administradores pueden acceder a este panel.</span>
+            </div>
+          </div>
+        </section>
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell>
@@ -17,7 +34,7 @@ export default function StaffPage() {
         <div className="section-heading hero-heading">
           <div>
             <h1>Staff Panel</h1>
-            <span>Gestiona cuentas y sube musica.</span>
+            <span>Gestiona cuentas, roles y permisos.</span>
           </div>
         </div>
 
@@ -51,96 +68,52 @@ export default function StaffPage() {
                       <button type="button" className={`staff-btn ${user.role === 'label' ? 'staff-btn-warn' : 'staff-btn-primary'}`} onClick={() => toggleUserLabel(user.id)}>
                         {user.role === 'label' ? 'Quitar discografica' : 'Dar discografica'}
                       </button>
+                      <button type="button" className="staff-btn" onClick={() => setResetTarget(user.id)}>
+                        Cambiar clave
+                      </button>
+                      <button type="button" className="staff-btn staff-btn-warn" onClick={() => setDeleteTarget(user.id)}>
+                        Borrar cuenta
+                      </button>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
           </div>
+        </div>
 
-          {canUpload && (
-            <div className="staff-section">
-              <h2>Subir musica</h2>
-              <form className="staff-upload-form" onSubmit={handleUploadTrack}>
+        {resetTarget && (
+          <div className="track-detail-overlay" onClick={() => setResetTarget(null)}>
+            <div className="track-detail-modal" onClick={(e) => e.stopPropagation()}>
+              <h2>Cambiar contrasena</h2>
+              <div className="track-detail-body">
                 <label>
-                  Artista
-                  <select value={uploadForm.artistId} onChange={(e) => setUploadForm((p) => ({ ...p, artistId: e.target.value }))} required>
-                    <option value="">Selecciona un artista</option>
-                    {users.filter((u) => u.role === 'artist').map((u) => (
-                      <option key={u.id} value={u.id}>{u.name}</option>
-                    ))}
-                  </select>
+                  Nueva contrasena
+                  <input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Nueva contrasena" />
                 </label>
-                <label>
-                  Titulo
-                  <input type="text" value={uploadForm.title} onChange={(e) => setUploadForm((p) => ({ ...p, title: e.target.value }))} placeholder="Nombre de la cancion" required />
-                </label>
-                <label>
-                  Album
-                  <input type="text" value={uploadForm.album} onChange={(e) => setUploadForm((p) => ({ ...p, album: e.target.value }))} placeholder="Nombre del album" />
-                </label>
-                <label>
-                  Genero
-                  <select value={uploadForm.genre} onChange={(e) => setUploadForm((p) => ({ ...p, genre: e.target.value }))}>
-                    <option value="">Selecciona genero</option>
-                    {['Pop', 'Indie', 'Rock', 'Latin', 'Hip-Hop', 'Electronica', 'R&B', 'Jazz', 'Classical', 'Metal', 'Folk', 'Reggae', 'Blues', 'Country', 'Other'].map((g) => (
-                      <option key={g} value={g}>{g}</option>
-                    ))}
-                  </select>
-                </label>
-                <label>
-                  Mood / Contexto
-                  <select value={uploadForm.mood} onChange={(e) => setUploadForm((p) => ({ ...p, mood: e.target.value }))}>
-                    <option value="">Selecciona mood</option>
-                    {['Focus', 'Night drive', 'Workout', 'Chill', 'Study', 'Party', 'Romance', 'Travel', 'Gaming', 'Sleep'].map((m) => (
-                      <option key={m} value={m}>{m}</option>
-                    ))}
-                  </select>
-                </label>
-                <label>
-                  Portada (URL de imagen)
-                  <input type="text" value={uploadForm.coverUrl} onChange={(e) => setUploadForm((p) => ({ ...p, coverUrl: e.target.value }))} placeholder="https://..." />
-                </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input type="checkbox" checked={uploadForm.isPodcast} onChange={(e) => setUploadForm((p) => ({ ...p, isPodcast: e.target.checked }))} />
-                  <span>Es podcast / audio hablado</span>
-                </label>
-                <label>
-                  Archivo de audio
-                  <input type="file" accept="audio/*" onChange={(e) => setUploadForm((p) => ({ ...p, file: e.target.files?.[0] || null }))} required />
-                </label>
-                <button type="submit" className="primary-btn" disabled={!uploadForm.artistId || !uploadForm.title || !uploadForm.file}>
-                  Subir cancion
-                </button>
-              </form>
-
-              <h3 className="staff-uploaded-heading">Canciones subidas</h3>
-              <div className="track-list staff-track-list">
-                {userTracks.length === 0 && <div className="queue-empty">No hay canciones subidas todavia.</div>}
-                {userTracks.map((track) => (
-                  <div key={track.id} className={`track-row staff-track-row ${selectedTrack.id === track.id && isPlaying ? 'selected' : ''}`}>
-                    <span className="track-index">{selectedTrack.id === track.id && isPlaying ? '\u25B6' : track.id}</span>
-                    <span className="track-meta">
-                      <CoverArt accent={track.accent || 'neon'} label={track.coverUrl || track.title.slice(0, 1)} className="track-cover" track={track} />
-                      <span className="track-copy">
-                        <strong>{track.title}</strong>
-                        <span>{track.artist}</span>
-                      </span>
-                    </span>
-                    <span className="track-album">{track.album}</span>
-                    <span className="track-time">{track.duration ? track.duration : ''}</span>
-                    <button type="button" className="icon-btn subtle" aria-label="Reproducir" onClick={() => playTrack(track.id)}>
-                      <span aria-hidden="true">{selectedTrack.id === track.id && isPlaying ? '\u275A\u275A' : '\u25B6'}</span>
-                    </button>
-                    <button type="button" className="icon-btn subtle staff-delete-btn" aria-label="Eliminar" onClick={() => deleteUserTrack(track.id)}>
-                      <span aria-hidden="true">&#x2715;</span>
-                    </button>
-                  </div>
-                ))}
+              </div>
+              <div className="track-detail-actions">
+                <button type="button" className="secondary-btn" onClick={() => { setResetTarget(null); setNewPassword(''); }}>Cancelar</button>
+                <button type="button" className="primary-btn" onClick={() => { resetUserPassword(resetTarget, newPassword); setResetTarget(null); setNewPassword(''); }}>Guardar</button>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {deleteTarget && (
+          <div className="track-detail-overlay" onClick={() => setDeleteTarget(null)}>
+            <div className="track-detail-modal" onClick={(e) => e.stopPropagation()}>
+              <h2>Borrar cuenta</h2>
+              <div className="track-detail-body">
+                <p>Estas seguro de que deseas borrar esta cuenta? Esta accion no se puede deshacer.</p>
+              </div>
+              <div className="track-detail-actions">
+                <button type="button" className="secondary-btn" onClick={() => setDeleteTarget(null)}>Cancelar</button>
+                <button type="button" className="primary-btn" style={{ background: '#ff4d4d', color: '#fff' }} onClick={() => { deleteUserAccount(deleteTarget); setDeleteTarget(null); }}>Borrar</button>
+              </div>
+            </div>
+          </div>
+        )}
       </section>
     </AppShell>
   );

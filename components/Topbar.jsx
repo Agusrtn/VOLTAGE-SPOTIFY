@@ -9,7 +9,7 @@ export default function Topbar() {
   const {
     search, setSearch, session, settings, setSettings, logout,
     notifications, setNotifications, notificationsOpen, setNotificationsOpen,
-    installApp, translate
+    installApp, translate, authMode, setAuthMode
   } = useMusic();
 
   const unread = notifications.filter((n) => !n.read && n.userId === session?.id).length;
@@ -37,7 +37,7 @@ export default function Topbar() {
       </label>
 
       <div className="top-actions">
-        {session && (
+        {session ? (
           <>
             <div className="notifications-wrap">
               <button
@@ -71,6 +71,15 @@ export default function Topbar() {
             <button type="button" className="secondary-btn" onClick={logout}>{translate('common.logout')}</button>
             <button type="button" className="user-pill" aria-label="Usuario activo" onClick={() => router.push(`/profile/${session.id}`)}>
               {session.name?.slice(0, 2).toUpperCase() || 'US'}
+            </button>
+          </>
+        ) : (
+          <>
+            <button type="button" className="secondary-btn" onClick={() => router.push('/')}>
+              {translate('auth.login')}
+            </button>
+            <button type="button" className="primary-btn" onClick={() => router.push('/')}>
+              {translate('auth.register')}
             </button>
           </>
         )}

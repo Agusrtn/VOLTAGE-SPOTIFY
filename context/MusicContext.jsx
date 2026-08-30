@@ -645,6 +645,12 @@ export function MusicProvider({ children }) {
     toggleUserVerified: (userId) => setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, isVerified: !u.isVerified } : u))),
     toggleUserArtist: (userId) => setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role: u.role === 'artist' ? 'user' : 'artist' } : u))),
     toggleUserLabel: (userId) => setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role: u.role === 'label' ? 'user' : 'label' } : u))),
+    deleteUserAccount: (userId) => setUsers((prev) => prev.filter((u) => u.id !== userId)),
+    resetUserPassword: (userId, newPass) => {
+      if (!newPass || newPass.length < 4) return;
+      setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, password: hashPassword(newPass) } : u)));
+      localStorage.setItem('spotify-clone-users', JSON.stringify(users.map((u) => (u.id === userId ? { ...u, password: hashPassword(newPass) } : u))));
+    },
     openShare: (type, id, name) => {
       setShareData({ type, id, name });
       setShareOpen(true);
