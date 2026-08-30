@@ -124,11 +124,17 @@ function GuestHome() {
 export default function RootPage() {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { session, hydrated } = useMusic();
+
+  const showAuth = searchParams.get('auth') === 'true';
 
   useEffect(() => {
     if (!hydrated) return;
-  }, [hydrated]);
+    if (session) {
+      router.replace('/home');
+    }
+  }, [session, hydrated, router]);
 
   if (!hydrated) {
     return (
@@ -143,8 +149,7 @@ export default function RootPage() {
     );
   }
 
-  if (session && pathname === '/') {
-    router.replace('/home');
+  if (session) {
     return (
       <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#000', color: '#fff' }}>
         <p>Redirigiendo...</p>
@@ -152,8 +157,8 @@ export default function RootPage() {
     );
   }
 
-  if (!session) {
-    return <GuestHome />;
+  if (showAuth) {
+    return <AuthShell />;
   }
 
   return <GuestHome />;

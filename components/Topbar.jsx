@@ -75,10 +75,10 @@ export default function Topbar() {
           </>
         ) : (
           <>
-            <button type="button" className="secondary-btn" onClick={() => router.push('/')}>
+            <button type="button" className="secondary-btn" onClick={() => router.push('/?auth=true')}>
               {translate('auth.login')}
             </button>
-            <button type="button" className="primary-btn" onClick={() => router.push('/')}>
+            <button type="button" className="primary-btn" onClick={() => router.push('/?auth=true')}>
               {translate('auth.register')}
             </button>
           </>

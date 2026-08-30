@@ -20,8 +20,8 @@ export default function HomePage() {
         </div>
         {!session && (
           <div style={{ display: 'flex', gap: '10px', marginBottom: '18px', flexWrap: 'wrap' }}>
-            <button type="button" className="primary-btn" onClick={() => router.push('/')}>Iniciar sesion</button>
-            <button type="button" className="secondary-btn" onClick={() => router.push('/')}>Crear cuenta</button>
+            <button type="button" className="primary-btn" onClick={() => router.push('/?auth=true')}>Iniciar sesion</button>
+            <button type="button" className="secondary-btn" onClick={() => router.push('/?auth=true')}>Crear cuenta</button>
           </div>
         )}
         <div className="quick-grid">
