@@ -40,7 +40,7 @@ export default function LibraryPage() {
         </div>
 
         <div className="library-list">
-          {displayedPlaylists.slice(0, 5).map((playlist, index) => (
+          {(displayedPlaylists || []).slice(0, 5).map((playlist, index) => (
             <button
               key={playlist.id}
               type="button"

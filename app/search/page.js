@@ -6,6 +6,7 @@ import TrackTable from '../../components/TrackTable';
 import CoverArt from '../../components/CoverArt';
 import { useRouter } from 'next/navigation';
 import { browseCategories } from '../../lib/data';
+import { formatTime } from '../../lib/utils';
 
 export default function SearchPage() {
   const router = useRouter();
@@ -40,16 +41,16 @@ export default function SearchPage() {
 
         {search.trim() ? (
           <>
-            {searchFilter === 'artists' && filteredArtists.length > 0 && (
+            {searchFilter === 'artists' && (filteredArtists || []).length > 0 && (
               <section className="table-card">
                 <div className="section-heading compact">
                   <div>
                     <h2>Artistas</h2>
-                    <span>{filteredArtists.length} resultados</span>
+                    <span>{(filteredArtists || []).length} resultados</span>
                   </div>
                 </div>
                 <div className="track-list">
-                  {filteredArtists.map((user, index) => (
+                  {(filteredArtists || []).map((user, index) => (
                     <button key={user.id} type="button" className="track-row" onClick={() => router.push(`/profile/${user.id}`)}>
                       <span className="track-index">{index + 1}</span>
                       <span className="track-meta">
@@ -66,16 +67,16 @@ export default function SearchPage() {
               </section>
             )}
 
-            {searchFilter === 'albums' && filteredAlbumsList.length > 0 && (
+            {searchFilter === 'albums' && (filteredAlbumsList || []).length > 0 && (
               <section className="table-card">
                 <div className="section-heading compact">
                   <div>
                     <h2>Albumes</h2>
-                    <span>{filteredAlbumsList.length} resultados</span>
+                    <span>{(filteredAlbumsList || []).length} resultados</span>
                   </div>
                 </div>
                 <div className="track-list">
-                  {filteredAlbumsList.map((track, index) => (
+                  {(filteredAlbumsList || []).map((track, index) => (
                     <button key={track.album + index} type="button" className="track-row" onClick={() => playTrack(track.id)}>
                       <span className="track-index">{index + 1}</span>
                       <span className="track-meta">
@@ -93,16 +94,16 @@ export default function SearchPage() {
               </section>
             )}
 
-            {searchFilter === 'playlists' && filteredPlaylistsList.length > 0 && (
+            {searchFilter === 'playlists' && (filteredPlaylistsList || []).length > 0 && (
               <section className="table-card">
                 <div className="section-heading compact">
                   <div>
                     <h2>Playlists</h2>
-                    <span>{filteredPlaylistsList.length} resultados</span>
+                    <span>{(filteredPlaylistsList || []).length} resultados</span>
                   </div>
                 </div>
                 <div className="track-list">
-                  {filteredPlaylistsList.map((pl, index) => (
+                  {(filteredPlaylistsList || []).map((pl, index) => (
                     <button key={pl.id} type="button" className="track-row" onClick={() => router.push(`/playlist/${pl.id}`)}>
                       <span className="track-index">{index + 1}</span>
                       <span className="track-meta">
@@ -120,7 +121,7 @@ export default function SearchPage() {
             )}
 
             {(searchFilter === 'all' || searchFilter === 'tracks') && (
-              <TrackTable tracks={filteredTracks.length ? filteredTracks : allTracks} heading={`Resultados para "${search.trim()}"`} />
+              <TrackTable tracks={(filteredTracks || []).length ? filteredTracks : (allTracks || [])} heading={`Resultados para "${search.trim()}"`} />
             )}
           </>
         ) : (

@@ -25,7 +25,7 @@ export default function HomePage() {
           </div>
         )}
         <div className="quick-grid">
-          {allTracks.map((track) => (
+          {(allTracks || []).map((track) => (
             <button key={track.id} type="button" className={`quick-card ${selectedTrack.id === track.id ? 'selected' : ''}`} onClick={() => playTrack(track.id)}>
               <div className={`cover-art ${track.accent} quick-cover`} aria-hidden="true">
                 <span>{track.title.slice(0, 1)}</span>
@@ -47,8 +47,8 @@ export default function HomePage() {
           </div>
         </div>
         <div className="playlist-grid">
-          {playlistData.map((playlist, index) => {
-            const playlistTrack = allTracks[index % allTracks.length];
+          {(playlistData || []).map((playlist, index) => {
+            const playlistTrack = (allTracks || [])[index % (allTracks || []).length];
             const playlistIsPlaying = selectedTrack.id === playlistTrack.id && isPlaying;
             return (
               <article key={playlist.title} className="playlist-card">
@@ -77,11 +77,11 @@ export default function HomePage() {
           <div className="section-heading compact">
             <div>
               <h2>Canciones recomendadas</h2>
-              <span>{recommendedTracks.length} canciones</span>
+              <span>{(recommendedTracks || []).length} canciones</span>
             </div>
           </div>
           <div className="track-list">
-            {recommendedTracks.slice(0, 5).map((track, index) => (
+            {(recommendedTracks || []).slice(0, 5).map((track, index) => (
               <button key={track.id} type="button" className={`track-row ${selectedTrack.id === track.id ? 'selected' : ''}`} onClick={() => playTrack(track.id)}>
                 <span className="track-index">{selectedTrack.id === track.id && isPlaying ? '\u25B6' : index + 1}</span>
                 <span className="track-meta">
@@ -110,7 +110,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="tag-list">
-            {moods.map((mood) => (
+            {(moods || []).map((mood) => (
               <button key={mood} type="button" className={`mood-tag ${activeMood === mood ? 'active' : ''}`} onClick={() => setActiveMood(mood)}>
                 {mood}
               </button>
