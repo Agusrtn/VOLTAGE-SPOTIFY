@@ -7,11 +7,10 @@ import QueuePanel from './QueuePanel';
 import NowPlayingView from './NowPlayingView';
 import Modals from './Modals';
 import BottomNav from './BottomNav';
-import CoverDetailModal from './CoverDetailModal';
 import { useMusic } from '../context/MusicContext';
 
 export default function AppShell({ children }) {
-  const { setQueueOpen, setNowPlayingOpen, setLyricsOpen, setConnectOpen, setSettingsOpen, setNotificationsOpen, setTrackDetailOpen, setProfileEditOpen, setNewPlaylistOpen, setNewAlbumOpen, setShareOpen, setCoverDetailOpen } = useMusic();
+  const { setQueueOpen, setNowPlayingOpen, setLyricsOpen, setConnectOpen, setSettingsOpen, setNotificationsOpen, setTrackDetailOpen, setProfileEditOpen, setNewPlaylistOpen, setNewAlbumOpen, setShareOpen } = useMusic();
 
   const handleNavClick = () => {
     setQueueOpen(false);
@@ -25,7 +24,6 @@ export default function AppShell({ children }) {
     setNewPlaylistOpen(false);
     setNewAlbumOpen(false);
     setShareOpen(false);
-    setCoverDetailOpen(false);
   };
 
   return (
@@ -42,7 +40,6 @@ export default function AppShell({ children }) {
       <QueuePanel />
       <NowPlayingView />
       <Modals />
-      <CoverDetailModal />
     </div>
   );
 }
