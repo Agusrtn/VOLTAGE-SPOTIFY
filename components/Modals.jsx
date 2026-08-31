@@ -51,6 +51,10 @@ export default function Modals() {
                 Portada (URL de imagen)
                 <input type="text" value={editTrack.coverUrl} onChange={(e) => setEditTrack((p) => ({ ...p, coverUrl: e.target.value }))} placeholder="https://..." />
               </label>
+              <label>
+                Visualizador (URL de video MP4)
+                <input type="text" value={editTrack.visualizerUrl} onChange={(e) => setEditTrack((p) => ({ ...p, visualizerUrl: e.target.value }))} placeholder="https://...video.mp4" />
+              </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                 <input type="checkbox" checked={editTrack.isPodcast} onChange={(e) => setEditTrack((p) => ({ ...p, isPodcast: e.target.checked }))} />
                 <span>Marcar como podcast / audio hablado</span>

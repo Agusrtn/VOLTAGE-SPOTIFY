@@ -14,25 +14,40 @@ export default function NowPlayingView() {
   if (!nowPlayingOpen) return null;
   const lyrics = getLyrics(selectedTrack.id);
   const progress = duration ? (currentTime / duration) * 100 : 0;
+  const visualizerUrl = selectedTrack.visualizerUrl || '';
 
   return (
     <div className="now-playing-overlay" onClick={() => setNowPlayingOpen(false)}>
       <div className="now-playing-view" onClick={(e) => e.stopPropagation()}>
         <button type="button" className="icon-btn subtle np-close" onClick={() => setNowPlayingOpen(false)}>✕</button>
-        <div className="np-visualizer" style={{ '--progress': `${progress}%` }}>
-          <div className="np-bar" /><div className="np-bar" /><div className="np-bar" /><div className="np-bar" /><div className="np-bar" />
+        <div className="np-body">
+          <div className="np-left">
+            <div className="np-visualizer" style={{ '--progress': `${progress}%` }}>
+              <div className="np-bar" /><div className="np-bar" /><div className="np-bar" /><div className="np-bar" /><div className="np-bar" />
+            </div>
+            <CoverArt accent={selectedTrack.accent} label={selectedTrack.title.slice(0, 1)} className="np-cover" track={selectedTrack} />
+            <h2>{selectedTrack.title}</h2>
+            <p>{selectedTrack.artist}</p>
+            <div className="progress-block np-progress">
+              <span>{formatTime(currentTime)}</span>
+              <input type="range" min="0" max={duration || 0} value={currentTime} onChange={(e) => { if (audioRef.current) audioRef.current.currentTime = Number(e.target.value); }} />
+              <span>{formatTime(duration)}</span>
+            </div>
+            <button type="button" className="play-button np-play" onClick={() => setIsPlaying((p) => !p)}>
+              {isPlaying ? '\u275A\u275A' : '\u25B6'}
+            </button>
+          </div>
+          <div className="np-right">
+            {visualizerUrl ? (
+              <video className="np-video" src={visualizerUrl} autoPlay loop muted playsInline />
+            ) : (
+              <div className="np-video-placeholder">
+                <span>Visualizador</span>
+                <small>Agrega un video MP4 desde editar cancion</small>
+              </div>
+            )}
+          </div>
         </div>
-        <CoverArt accent={selectedTrack.accent} label={selectedTrack.title.slice(0, 1)} className="np-cover" track={selectedTrack} />
-        <h2>{selectedTrack.title}</h2>
-        <p>{selectedTrack.artist}</p>
-        <div className="progress-block np-progress">
-          <span>{formatTime(currentTime)}</span>
-          <input type="range" min="0" max={duration || 0} value={currentTime} onChange={(e) => { if (audioRef.current) audioRef.current.currentTime = Number(e.target.value); }} />
-          <span>{formatTime(duration)}</span>
-        </div>
-        <button type="button" className="play-button np-play" onClick={() => setIsPlaying((p) => !p)}>
-          {isPlaying ? '\u275A\u275A' : '\u25B6'}
-        </button>
         {lyricsOpen && (
           <div className="lyrics-panel">
             <h3>{translate('player.lyrics')}</h3>

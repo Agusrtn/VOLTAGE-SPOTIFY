@@ -64,7 +64,7 @@ export function MusicProvider({ children }) {
   const [customQueue, setCustomQueue] = useState(null);
   const [likedTrackIds, setLikedTrackIds] = useState([]);
   const [trackDetailOpen, setTrackDetailOpen] = useState(false);
-  const [editTrack, setEditTrack] = useState({ id: null, title: '', album: '', accent: 'neon', coverUrl: '', genre: '', mood: '', isPodcast: false });
+  const [editTrack, setEditTrack] = useState({ id: null, title: '', album: '', accent: 'neon', coverUrl: '', genre: '', mood: '', isPodcast: false, visualizerUrl: '' });
   const [trackViewOpen, setTrackViewOpen] = useState(false);
   const [viewTrackId, setViewTrackId] = useState(null);
   const audioRef = useRef(null);
@@ -645,7 +645,8 @@ export function MusicProvider({ children }) {
       coverUrl: editTrack.coverUrl || '',
       genre: editTrack.genre || '',
       mood: editTrack.mood || '',
-      isPodcast: editTrack.isPodcast || false
+      isPodcast: editTrack.isPodcast || false,
+      visualizerUrl: editTrack.visualizerUrl || ''
     };
     if (userTracks.some((t) => t.id === editTrack.id)) {
       setUserTracks((prev) => prev.map((track) => (track.id === editTrack.id ? { ...track, ...updated } : track)));
