@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useMusic } from '../context/MusicContext';
 import { getLyrics } from '../lib/lyrics';
 import { formatTime } from '../lib/utils';
