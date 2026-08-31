@@ -5,6 +5,11 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react';
 
 const AudioSetupContext = createContext(null);
 
+function PersistentAudio() {
+  const { audioRef } = useMusic();
+  return <audio ref={audioRef} preload="metadata" />;
+}
+
 function PersistentAudioSetup({ children }) {
   const { audioRef } = useMusic();
   const audioContextRef = useRef(null);
