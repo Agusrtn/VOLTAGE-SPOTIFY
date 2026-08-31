@@ -82,9 +82,13 @@ export default function LabelPage() {
                 </select>
               </label>
               <label>
-                Portada (URL de imagen)
-                <input type="text" value={uploadForm.coverUrl} onChange={(e) => setUploadForm((p) => ({ ...p, coverUrl: e.target.value }))} placeholder="https://..." />
-              </label>
+                 Portada (URL de imagen)
+                 <input type="text" value={uploadForm.coverUrl} onChange={(e) => setUploadForm((p) => ({ ...p, coverUrl: e.target.value }))} placeholder="https://..." />
+               </label>
+               <label>
+                 Visualizer (URL de video MP4)
+                 <input type="text" value={uploadForm.visualizerUrl} onChange={(e) => setUploadForm((p) => ({ ...p, visualizerUrl: e.target.value }))} placeholder="https://... (opcional)" />
+               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                 <input type="checkbox" checked={uploadForm.isPodcast} onChange={(e) => setUploadForm((p) => ({ ...p, isPodcast: e.target.checked }))} />
                 <span>Es podcast / audio hablado</span>

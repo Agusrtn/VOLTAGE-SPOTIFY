@@ -69,7 +69,7 @@ export function MusicProvider({ children }) {
   const [viewTrackId, setViewTrackId] = useState(null);
   const audioRef = useRef(null);
   const [userTracks, setUserTracks] = useState([]);
-  const [uploadForm, setUploadForm] = useState({ artistId: '', title: '', album: '', genre: '', mood: '', isPodcast: false, coverUrl: '', file: null });
+  const [uploadForm, setUploadForm] = useState({ artistId: '', title: '', album: '', genre: '', mood: '', isPodcast: false, coverUrl: '', visualizerUrl: '', file: null });
   const [playlists, setPlaylists] = useState([]);
   const [albums, setAlbums] = useState([]);
   const [profileEditOpen, setProfileEditOpen] = useState(false);
@@ -573,12 +573,13 @@ export function MusicProvider({ children }) {
       genre: uploadForm.genre || 'Pop',
       accent: 'neon',
       coverUrl: uploadForm.coverUrl || '',
+      visualizerUrl: uploadForm.visualizerUrl || '',
       isPodcast: uploadForm.isPodcast || false,
       url
     };
     await saveTrack(newTrack);
     setUserTracks((prev) => [...prev, newTrack]);
-    setUploadForm({ artistId: '', title: '', album: '', genre: '', mood: '', isPodcast: false, coverUrl: '', file: null });
+    setUploadForm({ artistId: '', title: '', album: '', genre: '', mood: '', isPodcast: false, coverUrl: '', visualizerUrl: '', file: null });
 
     const followers = await getFollowersOf(artist.id);
     for (const followerId of followers) {

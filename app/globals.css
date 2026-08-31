@@ -632,29 +632,12 @@ input[type='range'] {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
-.cover-art::before,
-.cover-art::after {
-  content: "";
+.cover-art img {
   position: absolute;
-  inset: auto;
-  border-radius: 999px;
-}
-
-.cover-art::before {
-  width: 70%;
-  height: 70%;
-  right: -18%;
-  bottom: -22%;
-  background: rgba(255, 255, 255, 0.16);
-  transform: rotate(25deg);
-}
-
-.cover-art::after {
-  width: 42%;
-  height: 42%;
-  left: 14%;
-  top: 12%;
-  border: 8px solid rgba(0, 0, 0, 0.2);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .cover-art span {

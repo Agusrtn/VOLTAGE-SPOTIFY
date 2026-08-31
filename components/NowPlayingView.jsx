@@ -7,14 +7,16 @@ import CoverArt from './CoverArt';
 import AudioVisualizer from './AudioVisualizer';
 
 export default function NowPlayingView() {
+  const router = useRouter();
   const {
     nowPlayingOpen, setNowPlayingOpen, selectedTrack, isPlaying, setIsPlaying,
-    currentTime, duration, lyricsOpen, translate, audioRef
+    currentTime, duration, lyricsOpen, translate, audioRef, users
   } = useMusic();
 
   if (!nowPlayingOpen) return null;
   const lyrics = getLyrics(selectedTrack.id);
   const progress = duration ? (currentTime / duration) * 100 : 0;
+  const artistUser = users.find((u) => u.name.toLowerCase() === selectedTrack.artist.toLowerCase());
 
   return (
     <div className="now-playing-overlay" onClick={() => setNowPlayingOpen(false)}>
@@ -25,7 +27,11 @@ export default function NowPlayingView() {
             <AudioVisualizer isPlaying={isPlaying} accent={selectedTrack.accent} />
             <CoverArt accent={selectedTrack.accent} label={selectedTrack.title.slice(0, 1)} className="np-cover" track={selectedTrack} />
             <h2>{selectedTrack.title}</h2>
-            <p>{selectedTrack.artist}</p>
+            {artistUser ? (
+              <button type="button" className="artist-link" onClick={() => router.push(`/profile/${artistUser.id}`)}>{selectedTrack.artist}</button>
+            ) : (
+              <p>{selectedTrack.artist}</p>
+            )}
             <div className="progress-block np-progress">
               <span>{formatTime(currentTime)}</span>
               <input type="range" min="0" max={duration || 0} value={currentTime} onChange={(e) => { if (audioRef.current) audioRef.current.currentTime = Number(e.target.value); }} />

@@ -1,20 +1,24 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useMusic } from '../context/MusicContext';
 import { formatTime } from '../lib/utils';
 import CoverArt from './CoverArt';
 
 export default function PlayerBar() {
+  const router = useRouter();
   const {
     selectedTrack, isPlaying, setIsPlaying, likedTrackIds, toggleLikedTrack,
     isShuffle, setIsShuffle, isRepeat, setIsRepeat, changeTrack, currentTime, duration,
     volume, setVolume, queueOpen, setQueueOpen, setNowPlayingOpen, lyricsOpen, setLyricsOpen,
-    connectOpen, setConnectOpen, translate, audioRef
+    connectOpen, setConnectOpen, translate, audioRef, users
   } = useMusic();
 
   const prevVolumeRef = useRef(volume);
   const [isMuted, setIsMuted] = useState(false);
+
+  const artistUser = users.find((u) => u.name.toLowerCase() === selectedTrack.artist.toLowerCase());
 
   const handleProgress = (event) => {
     const nextTime = Number(event.target.value);
@@ -42,7 +46,11 @@ export default function PlayerBar() {
           <CoverArt accent={selectedTrack.accent} label={selectedTrack.title.slice(0, 1)} className="player-thumb" track={selectedTrack} />
           <div className="player-info">
             <h3>{selectedTrack.title}</h3>
-            <p>{selectedTrack.artist}</p>
+            {artistUser ? (
+              <button type="button" className="artist-link" onClick={() => router.push(`/profile/${artistUser.id}`)}>{selectedTrack.artist}</button>
+            ) : (
+              <p>{selectedTrack.artist}</p>
+            )}
           </div>
         </button>
         <button

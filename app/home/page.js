@@ -164,21 +164,28 @@ export default function HomePage() {
             </div>
           </div>
           <div className="recently-grid">
-            {recentlyPlayed.map((track) => (
-              <div key={track.id} className="recent-card" onClick={() => playTrack(track.id)}>
-                <div className={`cover-art ${track.accent}`} aria-hidden="true">
-                  {track.coverUrl ? (
-                    <img src={track.coverUrl} alt={track.title} loading="lazy" />
-                  ) : (
-                    <span>{track.title.slice(0, 1)}</span>
-                  )}
+            {recentlyPlayed.map((track) => {
+              const artistUser = users.find((u) => u.name.toLowerCase() === track.artist.toLowerCase());
+              return (
+                <div key={track.id} className="recent-card" onClick={() => playTrack(track.id)}>
+                  <div className={`cover-art ${track.accent}`} aria-hidden="true">
+                    {track.coverUrl ? (
+                      <img src={track.coverUrl} alt={track.title} loading="lazy" />
+                    ) : (
+                      <span>{track.title.slice(0, 1)}</span>
+                    )}
+                  </div>
+                  <div>
+                    <strong>{track.title}</strong>
+                    {artistUser ? (
+                      <button type="button" className="artist-link" onClick={(e) => { e.stopPropagation(); router.push(`/profile/${artistUser.id}`); }}>{track.artist}</button>
+                    ) : (
+                      <span>{track.artist}</span>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <strong>{track.title}</strong>
-                  <span>{track.artist}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}
