@@ -31,6 +31,18 @@ export default function Sidebar({ onNavClick }) {
               {translate(item.labelKey)}
             </Link>
           ))}
+          {(session?.role === 'admin' || session?.role === 'label') && (
+            <Link href="/staff" className={`nav-item ${isActive('/staff') ? 'active' : ''}`} onClick={onNavClick}>
+              <span aria-hidden="true">{'\u2699'}</span>
+              {translate('nav.staff')}
+            </Link>
+          )}
+          {session?.role === 'label' && (
+            <Link href="/label" className={`nav-item ${isActive('/label') ? 'active' : ''}`} onClick={onNavClick}>
+              <span aria-hidden="true">{'\u{1F3F7}'}</span>
+              {translate('nav.label')}
+            </Link>
+          )}
           {session && (
             <Link href={`/profile/${session.id}`} className={`nav-item ${pathname.startsWith(`/profile/${session.id}`) ? 'active' : ''}`} onClick={onNavClick}>
               <span aria-hidden="true">{'\u263A'}</span>

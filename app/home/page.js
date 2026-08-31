@@ -78,7 +78,7 @@ export default function HomePage() {
   const router = useRouter();
   const {
     allTracks, selectedTrack, isPlaying, playTrack, activeMood, setActiveMood,
-    moods, playlistData, recommendedTracks, translate, lang, session, history, users, albums, hydrated
+    moods, playlists, recommendedTracks, translate, lang, session, history, users, albums, hydrated
   } = useMusic();
 
   const greeting = useMemo(() => {
@@ -191,12 +191,14 @@ export default function HomePage() {
           </div>
         </div>
         <div className="home-grid">
-          {(playlistData || []).slice(0, 5).map((playlist, index) => {
-            const playlistTrack = (allTracks || [])[index % (allTracks || []).length];
+          {(playlists || []).slice(0, 5).map((playlist) => {
+            const firstTrackId = playlist.trackIds?.[0];
+            const playlistTrack = firstTrackId ? (allTracks || []).find((t) => t.id === firstTrackId) : (allTracks || [])[0];
+            if (!playlistTrack) return null;
             return (
               <CoverCard
-                key={playlist.title}
-                track={{ ...playlistTrack, title: playlist.title, artist: playlist.subtitle || 'Playlist', accent: playlist.accent || 'neon', coverUrl: playlistTrack.coverUrl || '' }}
+                key={playlist.id}
+                track={{ ...playlistTrack, title: playlist.name, artist: `${playlist.trackIds?.length || 0} canciones`, accent: 'neon', coverUrl: playlist.coverUrl || playlistTrack.coverUrl || '' }}
                 selectedTrack={selectedTrack}
                 isPlaying={isPlaying}
                 onPlay={() => playTrack(playlistTrack.id)}
@@ -316,12 +318,14 @@ export default function HomePage() {
           </div>
         </div>
         <div className="home-grid">
-          {(playlistData || []).slice(0, 6).map((playlist, index) => {
-            const playlistTrack = (allTracks || [])[index % (allTracks || []).length];
+          {(playlists || []).slice(0, 6).map((playlist) => {
+            const firstTrackId = playlist.trackIds?.[0];
+            const playlistTrack = firstTrackId ? (allTracks || []).find((t) => t.id === firstTrackId) : (allTracks || [])[0];
+            if (!playlistTrack) return null;
             return (
               <CoverCard
-                key={playlist.title}
-                track={{ ...playlistTrack, title: playlist.title, artist: playlist.subtitle || 'Playlist', accent: playlist.accent || 'neon', coverUrl: playlistTrack.coverUrl || '' }}
+                key={playlist.id}
+                track={{ ...playlistTrack, title: playlist.name, artist: `${playlist.trackIds?.length || 0} canciones`, accent: 'neon', coverUrl: playlist.coverUrl || playlistTrack.coverUrl || '' }}
                 selectedTrack={selectedTrack}
                 isPlaying={isPlaying}
                 onPlay={() => playTrack(playlistTrack.id)}
