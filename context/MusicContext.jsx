@@ -793,9 +793,35 @@ export function MusicProvider({ children }) {
       const nowFollowing = await toggleFollow(session.id, userId);
       setFollowingIds((prev) => (nowFollowing ? [...prev, userId] : prev.filter((id) => id !== userId)));
     },
-    toggleUserVerified: (userId) => setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, isVerified: !u.isVerified } : u))),
-    toggleUserArtist: (userId) => setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role: u.role === 'artist' ? 'user' : 'artist' } : u))),
-    toggleUserLabel: (userId) => setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role: u.role === 'label' ? 'user' : 'label' } : u))),
+    toggleUserVerified: (userId) => {
+      const updated = { ...users.find((u) => u.id === userId), isVerified: !users.find((u) => u.id === userId)?.isVerified };
+      setUsers((prev) => prev.map((u) => (u.id === userId ? updated : u)));
+      if (session?.id === userId) {
+        setSession((prev) => ({ ...prev, ...updated }));
+        localStorage.setItem('spotify-clone-session', JSON.stringify({ ...session, ...updated }));
+      }
+      localStorage.setItem('spotify-clone-users', JSON.stringify(users.map((u) => (u.id === userId ? updated : u))));
+    },
+    toggleUserArtist: (userId) => {
+      const target = users.find((u) => u.id === userId);
+      const updated = { ...target, role: target?.role === 'artist' ? 'user' : 'artist' };
+      setUsers((prev) => prev.map((u) => (u.id === userId ? updated : u)));
+      if (session?.id === userId) {
+        setSession((prev) => ({ ...prev, ...updated }));
+        localStorage.setItem('spotify-clone-session', JSON.stringify({ ...session, ...updated }));
+      }
+      localStorage.setItem('spotify-clone-users', JSON.stringify(users.map((u) => (u.id === userId ? updated : u))));
+    },
+    toggleUserLabel: (userId) => {
+      const target = users.find((u) => u.id === userId);
+      const updated = { ...target, role: target?.role === 'label' ? 'user' : 'label' };
+      setUsers((prev) => prev.map((u) => (u.id === userId ? updated : u)));
+      if (session?.id === userId) {
+        setSession((prev) => ({ ...prev, ...updated }));
+        localStorage.setItem('spotify-clone-session', JSON.stringify({ ...session, ...updated }));
+      }
+      localStorage.setItem('spotify-clone-users', JSON.stringify(users.map((u) => (u.id === userId ? updated : u))));
+    },
     deleteUserAccount: (userId) => setUsers((prev) => prev.filter((u) => u.id !== userId)),
     resetUserPassword: (userId, newPass) => {
       if (!newPass || newPass.length < 4) return;
