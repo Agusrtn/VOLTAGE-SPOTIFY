@@ -1,4 +1,5 @@
 import ClientLayout from './ClientLayout';
+import VideoSplash from '../components/VideoSplash';
 import './globals.css';
 
 export const metadata = {
@@ -22,6 +23,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es">
       <body>
+        <VideoSplash />
         <ClientLayout>
           {children}
         </ClientLayout>
