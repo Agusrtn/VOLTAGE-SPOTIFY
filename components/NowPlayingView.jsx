@@ -22,7 +22,7 @@ export default function NowPlayingView() {
         <button type="button" className="icon-btn subtle np-close" onClick={() => setNowPlayingOpen(false)}>✕</button>
         <div className="np-body">
           <div className="np-left">
-            <AudioVisualizer audioRef={audioRef} isPlaying={isPlaying} accent={selectedTrack.accent} />
+            <AudioVisualizer isPlaying={isPlaying} accent={selectedTrack.accent} />
             <CoverArt accent={selectedTrack.accent} label={selectedTrack.title.slice(0, 1)} className="np-cover" track={selectedTrack} />
             <h2>{selectedTrack.title}</h2>
             <p>{selectedTrack.artist}</p>

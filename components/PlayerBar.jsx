@@ -55,8 +55,6 @@ export default function PlayerBar() {
         </button>
       </div>
 
-      <audio ref={audioRef} preload="metadata" />
-
       <div className="player-center">
         <div className="player-controls">
           <button type="button" className={`ctrl-btn ${isShuffle ? 'active' : ''}`} aria-label={translate('player.shuffle')} onClick={() => setIsShuffle((p) => !p)}>

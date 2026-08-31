@@ -1,17 +1,18 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { useAudioSetup } from '../app/ClientLayout';
 
-export default function AudioVisualizer({ audioRef, isPlaying, accent = 'neon' }) {
+export default function AudioVisualizer({ isPlaying, accent = 'neon' }) {
   const canvasRef = useRef(null);
   const frameRef = useRef(null);
-  const analyserRef = useRef(null);
-  const sourceRef = useRef(null);
+  const { analyserRef, ready } = useAudioSetup();
 
   useEffect(() => {
-    const audio = audioRef?.current;
+    if (!ready) return;
+
     const canvas = canvasRef.current;
-    if (!audio || !canvas) return;
+    if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -25,38 +26,8 @@ export default function AudioVisualizer({ audioRef, isPlaying, accent = 'neon' }
     resize();
     window.addEventListener('resize', resize);
 
-    let audioContext = null;
-    let analyser = null;
-    let source = null;
-    let dataArray = null;
-
-    const setupAudio = async () => {
-      try {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        source = audioContext.createMediaElementSource(audio);
-        analyser = audioContext.createAnalyser();
-        analyser.fftSize = 64;
-        source.connect(analyser);
-        analyser.connect(audioContext.destination);
-        analyserRef.current = analyser;
-        sourceRef.current = source;
-        dataArray = new Uint8Array(analyser.frequencyBinCount);
-      } catch (e) {
-        console.warn('Audio visualizer setup failed:', e);
-      }
-    };
-
-    let started = false;
-    const trySetup = async () => {
-      if (!started && audio.src) {
-        started = true;
-        await setupAudio();
-      }
-    };
-
-    trySetup();
-    audio.addEventListener('play', trySetup);
-    audio.addEventListener('loadedmetadata', trySetup);
+    const analyser = analyserRef.current;
+    const dataArray = analyser ? new Uint8Array(analyser.frequencyBinCount) : null;
 
     const draw = () => {
       if (!ctx || !canvas) return;
@@ -95,17 +66,19 @@ export default function AudioVisualizer({ audioRef, isPlaying, accent = 'neon' }
 
     return () => {
       window.removeEventListener('resize', resize);
-      audio.removeEventListener('play', trySetup);
-      audio.removeEventListener('loadedmetadata', trySetup);
       if (frameRef.current) cancelAnimationFrame(frameRef.current);
-      if (sourceRef.current) {
-        try { sourceRef.current.disconnect(); } catch (e) { /* ignore */ }
-      }
-      if (audioContext && audioContext.state !== 'closed') {
-        audioContext.close().catch(() => {});
-      }
     };
-  }, [audioRef, isPlaying, accent]);
+  }, [isPlaying, accent, ready, analyserRef]);
+
+  if (!ready) {
+    return (
+      <div className="np-visualizer" style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'flex-end', gap: 2, padding: 8 }}>
+        {[...Array(12)].map((_, i) => (
+          <div key={i} style={{ flex: 1, height: 6, background: 'rgba(255,255,255,0.2)', borderRadius: 2 }} />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <canvas
