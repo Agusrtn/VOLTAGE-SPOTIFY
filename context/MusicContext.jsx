@@ -104,14 +104,14 @@ export function MusicProvider({ children }) {
   const lang = settings.language || 'es';
   const translate = useCallback((key, vars) => t(key, lang, vars), [lang]);
 
-  const coverDetailTrack = useMemo(
-    () => allTracks.find((t) => t.id === coverDetailTrackId) || null,
-    [coverDetailTrackId, allTracks]
-  );
-
   const allTracks = useMemo(
     () => [...baseTracks.map((track) => ({ ...track, ...(baseTrackOverrides[track.id] || {}) })), ...userTracks],
     [userTracks, baseTrackOverrides]
+  );
+
+  const coverDetailTrack = useMemo(
+    () => allTracks.find((t) => t.id === coverDetailTrackId) || null,
+    [coverDetailTrackId, allTracks]
   );
 
   const selectedTrack = useMemo(

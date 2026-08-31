@@ -5,6 +5,10 @@ export const metadata = {
   title: 'VOLTAGE MUSIC',
   description: 'Una experiencia musical moderna.',
   manifest: '/manifest.json',
+  icons: {
+    icon: '/logo.png',
+    apple: '/logo.png',
+  },
 };
 
 export const viewport = {
