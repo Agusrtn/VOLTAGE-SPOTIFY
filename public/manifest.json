@@ -7,5 +7,12 @@
   "background_color": "#000000",
   "theme_color": "#1ed760",
   "orientation": "any",
-  "icons": []
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ]
 }

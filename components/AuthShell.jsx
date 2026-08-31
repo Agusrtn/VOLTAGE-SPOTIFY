@@ -14,7 +14,7 @@ export default function AuthShell() {
     <main className="auth-shell">
       <section className="auth-card">
         <div className="auth-brand">
-          <span className="brand-mark wave-mark" aria-hidden="true"><i /></span>
+          <span className="brand-mark" aria-hidden="true"><img src="/logo.png" alt="VOLTAGE MUSIC" /></span>
           <h1>VOLTAGE MUSIC</h1>
         </div>
         <p className="auth-tag">{translate('auth.tagline')}</p>

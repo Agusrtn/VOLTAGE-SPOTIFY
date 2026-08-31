@@ -1185,6 +1185,14 @@ input[type='range'] {
   height: 48px;
 }
 
+.brand-mark img,
+.auth-brand .brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
 .auth-brand h1 {
   margin: 0;
   font-size: 2rem;

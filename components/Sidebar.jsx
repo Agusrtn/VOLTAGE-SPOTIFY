@@ -18,7 +18,7 @@ export default function Sidebar() {
     <aside className="sidebar">
       <section className="sidebar-card nav-card">
         <div className="brand">
-          <span className="brand-mark wave-mark" aria-hidden="true"><i /></span>
+          <span className="brand-mark" aria-hidden="true"><img src="/logo.png" alt="VOLTAGE MUSIC" /></span>
           <span>VOLTAGE MUSIC</span>
         </div>
 
