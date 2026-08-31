@@ -749,7 +749,7 @@ export function MusicProvider({ children }) {
     nowPlayingOpen, setNowPlayingOpen, lyricsOpen, setLyricsOpen,
     playbackRate, setPlaybackRate, connectOpen, setConnectOpen,
     activeDevice, setActiveDevice, installPrompt,
-    allTracks, recommendedTracks, moodPlaylists, queueTracks, userPlaylists, likesPlaylist,
+    allTracks, recommendedTracks, moodPlaylists, queueTracks, userPlaylists, likesPlaylist, playlistData,
     filteredTracks, stats, moods, translate, lang, getGreeting: () => getGreeting(lang),
     playTrack, playQueueTrack, changeTrack, reorderQueue, toggleLikedTrack,
     handleAuthSubmit, logout, handleUploadTrack, createPlaylist, createAlbum,

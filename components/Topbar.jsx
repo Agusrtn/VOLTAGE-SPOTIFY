@@ -47,7 +47,7 @@ export default function Topbar() {
                 onClick={() => setNotificationsOpen((p) => !p)}
                 style={{ position: 'relative' }}
               >
-                <span aria-hidden="true">&#x1F514;</span>
+                <span aria-hidden="true">{'\u266A'}</span>
                 {unread > 0 && <span className="notification-badge">{unread}</span>}
               </button>
               {notificationsOpen && (
@@ -67,11 +67,7 @@ export default function Topbar() {
             >
               <span aria-hidden="true">{settings.theme === 'dark' ? '\u2600\uFE0F' : '\u{1F319}'}</span>
             </button>
-            <button type="button" className="icon-btn subtle" aria-label="Configuracion" onClick={() => setSettingsOpen(true)}>
-              <span aria-hidden="true">&#x2699;</span>
-            </button>
             <button type="button" className="install-btn" onClick={installApp}>{translate('common.install')}</button>
-            <button type="button" className="secondary-btn" onClick={logout}>{translate('common.logout')}</button>
             <button type="button" className="user-pill" aria-label="Usuario activo" onClick={() => router.push(`/profile/${session.id}`)}>
               {session.name?.slice(0, 2).toUpperCase() || 'US'}
             </button>

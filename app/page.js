@@ -4,122 +4,6 @@ import { useEffect } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useMusic } from '../context/MusicContext';
 import AuthShell from '../components/AuthShell';
-import AppShell from '../components/AppShell';
-import { useMusic as useMusicGuest } from '../context/MusicContext';
-
-function GuestHome() {
-  const router = useRouter();
-  const { session } = useMusic();
-  const {
-    allTracks, playTrack, selectedTrack, isPlaying, recommendedTracks,
-    translate, setSearch, searchFilter, setSearchFilter, filteredTracks,
-    moods, activeMood, setActiveMood, playlistData
-  } = useMusicGuest();
-
-  return (
-    <AppShell>
-      <section className="home-hero">
-        <div className="hero-heading">
-          <span className="eyebrow">{translate('home.playlistOfDay')}</span>
-          <h1>Bienvenido a VOLTAGE MUSIC</h1>
-        </div>
-        <div className="quick-grid">
-          {(allTracks || []).map((track) => (
-            <button key={track.id} type="button" className={`quick-card ${selectedTrack.id === track.id ? 'selected' : ''}`} onClick={() => playTrack(track.id)}>
-              <div className={`cover-art ${track.accent} quick-cover`} aria-hidden="true">
-                <span>{track.title.slice(0, 1)}</span>
-              </div>
-              <strong>{track.title}</strong>
-              <button type="button" className="quick-play" aria-label={`Reproducir ${track.title}`} onClick={(e) => { e.stopPropagation(); playTrack(track.id); }}>
-                <span aria-hidden="true">{selectedTrack.id === track.id && isPlaying ? '\u275A\u275A' : '\u25B6'}</span>
-              </button>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section className="shelf">
-        <div className="section-heading">
-          <div>
-            <h2>{translate('home.madeForYou')}</h2>
-            <span>{translate('home.basedOn', { mood: activeMood })}</span>
-          </div>
-        </div>
-        <div className="playlist-grid">
-          {(playlistData || []).map((playlist, index) => {
-            const playlistTrack = (allTracks || [])[index % (allTracks || []).length];
-            const playlistIsPlaying = selectedTrack.id === playlistTrack.id && isPlaying;
-            return (
-              <article key={playlist.title} className="playlist-card">
-                <div className={`cover-art ${playlist.accent} playlist-cover`} aria-hidden="true">
-                  <span>{String(index + 1).padStart(2, '0')}</span>
-                </div>
-                <button type="button" className="play-fab" aria-label={`Reproducir ${playlist.title}`} onClick={() => playTrack(playlistTrack.id)}>
-                  <span aria-hidden="true">{playlistIsPlaying ? '\u275A\u275A' : '\u25B6'}</span>
-                </button>
-                <h3>{playlist.title}</h3>
-                <p>{playlist.subtitle}</p>
-              </article>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="shelf">
-        <div className="section-heading">
-          <div>
-            <h2>Recomendado para ti</h2>
-            <span>Personalizado segun tus gustos</span>
-          </div>
-        </div>
-        <div className="table-card">
-          <div className="section-heading compact">
-            <div>
-              <h2>Canciones recomendadas</h2>
-              <span>{(recommendedTracks || []).length} canciones</span>
-            </div>
-          </div>
-          <div className="track-list">
-            {recommendedTracks.slice(0, 5).map((track, index) => (
-              <button key={track.id} type="button" className={`track-row ${selectedTrack.id === track.id ? 'selected' : ''}`} onClick={() => playTrack(track.id)}>
-                <span className="track-index">{selectedTrack.id === track.id && isPlaying ? '\u25B6' : index + 1}</span>
-                <span className="track-meta">
-                  <div className={`cover-art ${track.accent} track-cover`} aria-hidden="true">
-                    <span>{track.title.slice(0, 1)}</span>
-                  </div>
-                  <span className="track-copy">
-                    <strong>{track.title}</strong>
-                    <span>{track.artist}</span>
-                  </span>
-                </span>
-                <span className="track-album">{track.album}</span>
-                <span className="track-time">{track.duration ? track.duration : ''}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="bottom-layout">
-        <aside className="mood-card">
-          <div className="section-heading compact">
-            <div>
-              <h2>{translate('home.mood')}</h2>
-              <span>{translate('home.moodHint')}</span>
-            </div>
-          </div>
-          <div className="tag-list">
-            {moods.map((mood) => (
-              <button key={mood} type="button" className={`mood-tag ${activeMood === mood ? 'active' : ''}`} onClick={() => setActiveMood(mood)}>
-                {mood}
-              </button>
-            ))}
-          </div>
-        </aside>
-      </section>
-    </AppShell>
-  );
-}
 
 export default function RootPage() {
   const router = useRouter();
@@ -138,12 +22,12 @@ export default function RootPage() {
 
   if (!hydrated) {
     return (
-      <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#000', color: '#fff' }}>
+      <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#080808', color: '#fff' }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ width: 48, height: 48, margin: '0 auto 16px', borderRadius: '50%', overflow: 'hidden', background: 'var(--green)' }}>
+          <div style={{ width: 56, height: 56, margin: '0 auto 16px', borderRadius: '50%', overflow: 'hidden', background: 'var(--accent)' }}>
             <img src="/logo.png" alt="VOLTAGE MUSIC" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
-          <p>Cargando VOLTAGE MUSIC...</p>
+          <p style={{ fontFamily: 'var(--font-display)', fontWeight: 800, letterSpacing: '0.05em' }}>VOLTAGE MUSIC</p>
         </div>
       </div>
     );
@@ -151,7 +35,7 @@ export default function RootPage() {
 
   if (session) {
     return (
-      <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#000', color: '#fff' }}>
+      <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#080808', color: '#fff' }}>
         <p>Redirigiendo...</p>
       </div>
     );
@@ -162,4 +46,120 @@ export default function RootPage() {
   }
 
   return <GuestHome />;
+}
+
+function GuestHome() {
+  const router = useRouter();
+  const { session } = useMusic();
+  const {
+    allTracks, playTrack, selectedTrack, isPlaying, recommendedTracks,
+    translate, setSearch, searchFilter, setSearchFilter, filteredTracks,
+    moods, activeMood, setActiveMood, playlistData
+  } = useMusic();
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#080808', color: '#fff' }}>
+      <header style={{ padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 34, height: 34, borderRadius: '50%', overflow: 'hidden', background: 'var(--accent)' }}>
+            <img src="/logo.png" alt="VOLTAGE MUSIC" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.1rem', letterSpacing: '0.05em' }}>VOLTAGE MUSIC</span>
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button type="button" className="secondary-btn" onClick={() => router.push('/?auth=true')}>{translate('auth.login')}</button>
+          <button type="button" className="primary-btn" onClick={() => router.push('/?auth=true')}>{translate('auth.register')}</button>
+        </div>
+      </header>
+
+      <main style={{ maxWidth: 1200, margin: '0 auto', padding: '24px' }}>
+        <section style={{ marginBottom: 40 }}>
+          <h1 style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', lineHeight: 1.05, margin: '0 0 16px', fontFamily: 'var(--font-display)', fontWeight: 800 }}>
+            Tu musica,<br />tu energia.
+          </h1>
+          <p style={{ color: 'var(--muted)', fontSize: '1.1rem', maxWidth: 480, margin: '0 0 24px' }}>
+            Millones de canciones. Sin tarifas. Empieza a escuchar ahora.
+          </p>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <button type="button" className="primary-btn" style={{ padding: '14px 32px', fontSize: '1rem', borderRadius: 999 }} onClick={() => router.push('/?auth=true')}>
+              Empezar ahora
+            </button>
+            <button type="button" className="secondary-btn" style={{ padding: '14px 32px', fontSize: '1rem', borderRadius: 999 }} onClick={() => setSearch('pop')}>
+              Explorar musica
+            </button>
+          </div>
+        </section>
+
+        <section style={{ marginBottom: 32 }}>
+          <h2 style={{ fontSize: '1.35rem', margin: '0 0 14px', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{translate('home.madeForYou')}</h2>
+          <div className="home-grid">
+            {(playlistData || []).slice(0, 5).map((playlist, index) => {
+              const playlistTrack = (allTracks || [])[index % (allTracks || []).length];
+              const playlistIsPlaying = selectedTrack.id === playlistTrack.id && isPlaying;
+              return (
+                <div key={playlist.title} className="cover-card" onClick={() => playTrack(playlistTrack.id)}>
+                  <div className={`cover-art ${playlist.accent}`} aria-hidden="true">
+                    <span>{String(index + 1).padStart(2, '0')}</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="cover-play"
+                    aria-label={`Reproducir ${playlist.title}`}
+                    onClick={(e) => { e.stopPropagation(); playTrack(playlistTrack.id); }}
+                  >
+                    <span aria-hidden="true">{playlistIsPlaying ? '\u275A\u275A' : '\u25B6'}</span>
+                  </button>
+                  <h3>{playlist.title}</h3>
+                  <p>{playlist.subtitle}</p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        <section style={{ marginBottom: 32 }}>
+          <h2 style={{ fontSize: '1.35rem', margin: '0 0 14px', fontFamily: 'var(--font-display)', fontWeight: 800 }}>Recomendado para ti</h2>
+          <div className="home-grid">
+            {(recommendedTracks || []).slice(0, 8).map((track) => (
+              <div key={track.id} className="cover-card" onClick={() => playTrack(track.id)}>
+                <div className={`cover-art ${track.accent}`} aria-hidden="true">
+                  <span>{track.title.slice(0, 1)}</span>
+                </div>
+                <button
+                  type="button"
+                  className="cover-play"
+                  aria-label={`Reproducir ${track.title}`}
+                  onClick={(e) => { e.stopPropagation(); playTrack(track.id); }}
+                >
+                  <span aria-hidden="true">{selectedTrack.id === track.id && isPlaying ? '\u275A\u275A' : '\u25B6'}</span>
+                </button>
+                <h3>{track.title}</h3>
+                <p>{track.artist}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section style={{ marginBottom: 32 }}>
+          <h2 style={{ fontSize: '1.35rem', margin: '0 0 14px', fontFamily: 'var(--font-display)', fontWeight: 800 }}>Explorar por estado de animo</h2>
+          <div className="tag-list">
+            {moods.map((mood) => (
+              <button
+                key={mood}
+                type="button"
+                className={`mood-tag ${activeMood === mood ? 'active' : ''}`}
+                onClick={() => setActiveMood(mood)}
+              >
+                {mood}
+              </button>
+            ))}
+          </div>
+        </section>
+      </main>
+
+      <footer style={{ padding: '40px 24px', textAlign: 'center', color: 'var(--muted)', fontSize: '0.85rem', borderTop: '1px solid var(--border)' }}>
+        <p> VOLTAGE MUSIC. Tu plataforma musical.</p>
+      </footer>
+    </div>
+  );
 }

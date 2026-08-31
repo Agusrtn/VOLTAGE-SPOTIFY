@@ -18,8 +18,10 @@ export default function Sidebar({ onNavClick }) {
     <aside className="sidebar">
       <section className="sidebar-card nav-card">
         <div className="brand">
-          <span className="brand-mark" aria-hidden="true"><img src="/logo.png" alt="VOLTAGE MUSIC" /></span>
-          <span>VOLTAGE MUSIC</span>
+          <span className="brand-mark" aria-hidden="true">
+            <img src="/logo.png" alt="VOLTAGE MUSIC" />
+          </span>
+          <span>VOLTAGE</span>
         </div>
 
         <nav className="nav-menu" aria-label="Navegacion principal">
@@ -29,21 +31,9 @@ export default function Sidebar({ onNavClick }) {
               {translate(item.labelKey)}
             </Link>
           ))}
-          {(session?.role === 'admin' || session?.role === 'label') && (
-            <Link href="/label" className={`nav-item ${isActive('/label') ? 'active' : ''}`} onClick={onNavClick}>
-              <span aria-hidden="true">&#x266B;</span>
-              Discografica
-            </Link>
-          )}
-          {session?.role === 'admin' && (
-            <Link href="/staff" className={`nav-item ${isActive('/staff') ? 'active' : ''}`} onClick={onNavClick}>
-              <span aria-hidden="true">&#x2699;</span>
-              {translate('nav.staff')}
-            </Link>
-          )}
           {session && (
             <Link href={`/profile/${session.id}`} className={`nav-item ${pathname.startsWith(`/profile/${session.id}`) ? 'active' : ''}`} onClick={onNavClick}>
-              <span aria-hidden="true">&#x1F464;</span>
+              <span aria-hidden="true">{'\u263A'}</span>
               {translate('nav.profile')}
             </Link>
           )}

@@ -2,7 +2,6 @@
 
 import { useMusic } from '../../context/MusicContext';
 import AppShell from '../../components/AppShell';
-import TrackTable from '../../components/TrackTable';
 import CoverArt from '../../components/CoverArt';
 import { useRouter } from 'next/navigation';
 import { browseCategories } from '../../lib/data';
@@ -12,7 +11,7 @@ export default function SearchPage() {
   const router = useRouter();
   const {
     search, setSearch, searchFilter, setSearchFilter, filteredTracks, filteredArtists, filteredAlbumsList, filteredPlaylistsList,
-    allTracks, playTrack, translate, users
+    allTracks, playTrack, translate, users, selectedTrackId
   } = useMusic();
 
   return (
@@ -54,7 +53,9 @@ export default function SearchPage() {
                     <button key={user.id} type="button" className="track-row" onClick={() => router.push(`/profile/${user.id}`)}>
                       <span className="track-index">{index + 1}</span>
                       <span className="track-meta">
-                        <CoverArt accent="neon" label={user.name.slice(0, 2).toUpperCase()} className="track-cover" />
+                        <div className={`cover-art neon track-cover`} aria-hidden="true">
+                          <span>{user.name.slice(0, 2).toUpperCase()}</span>
+                        </div>
                         <span className="track-copy">
                           <strong>{user.name}</strong>
                           <span>{user.email}</span>
@@ -80,7 +81,9 @@ export default function SearchPage() {
                     <button key={track.album + index} type="button" className="track-row" onClick={() => playTrack(track.id)}>
                       <span className="track-index">{index + 1}</span>
                       <span className="track-meta">
-                        <CoverArt accent={track.accent} label={track.album.slice(0, 1)} className="track-cover" track={track} />
+                        <div className={`cover-art ${track.accent} track-cover`} aria-hidden="true">
+                          <span>{track.album.slice(0, 1)}</span>
+                        </div>
                         <span className="track-copy">
                           <strong>{track.album}</strong>
                           <span>{track.artist}</span>
@@ -107,7 +110,9 @@ export default function SearchPage() {
                     <button key={pl.id} type="button" className="track-row" onClick={() => router.push(`/playlist/${pl.id}`)}>
                       <span className="track-index">{index + 1}</span>
                       <span className="track-meta">
-                        <CoverArt accent="sunset" label={pl.name.slice(0, 1)} className="track-cover" />
+                        <div className={`cover-art sunset track-cover`} aria-hidden="true">
+                          <span>{pl.name.slice(0, 1)}</span>
+                        </div>
                         <span className="track-copy">
                           <strong>{pl.name}</strong>
                           <span>{pl.trackIds.length} canciones</span>
@@ -121,7 +126,32 @@ export default function SearchPage() {
             )}
 
             {(searchFilter === 'all' || searchFilter === 'tracks') && (
-              <TrackTable tracks={(filteredTracks || []).length ? filteredTracks : (allTracks || [])} heading={`Resultados para "${search.trim()}"`} />
+              <section className="table-card">
+                <div className="section-heading compact">
+                  <div>
+                    <h2>Canciones</h2>
+                    <span>{(filteredTracks || []).length} resultados</span>
+                  </div>
+                </div>
+                <div className="track-list">
+                  {(filteredTracks || []).slice(0, 20).map((track, index) => (
+                    <button key={track.id} type="button" className={`track-row ${selectedTrackId === track.id ? 'selected' : ''}`} onClick={() => playTrack(track.id)}>
+                      <span className="track-index">{index + 1}</span>
+                      <span className="track-meta">
+                        <div className={`cover-art ${track.accent} track-cover`} aria-hidden="true">
+                          <span>{track.title.slice(0, 1)}</span>
+                        </div>
+                        <span className="track-copy">
+                          <strong>{track.title}</strong>
+                          <span>{track.artist}</span>
+                        </span>
+                      </span>
+                      <span className="track-album">{track.album}</span>
+                      <span className="track-time">{track.duration ? formatTime(track.duration) : ''}</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
             )}
           </>
         ) : (

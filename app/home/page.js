@@ -1,122 +1,307 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useMusic } from '../../context/MusicContext';
 import AppShell from '../../components/AppShell';
 import { useRouter } from 'next/navigation';
+
+function CoverCard({ track, selectedTrack, isPlaying, onPlay }) {
+  return (
+    <div className="cover-card" onClick={() => onPlay(track.id)}>
+      <div className={`cover-art ${track.accent}`} aria-hidden="true">
+        <span>{track.title.slice(0, 1)}</span>
+      </div>
+      <button
+        type="button"
+        className="cover-play"
+        aria-label={`Reproducir ${track.title}`}
+        onClick={(e) => { e.stopPropagation(); onPlay(track.id); }}
+      >
+        <span aria-hidden="true">{selectedTrack.id === track.id && isPlaying ? '\u275A\u275A' : '\u25B6'}</span>
+      </button>
+      <h3>{track.title}</h3>
+      <p>{track.artist}</p>
+    </div>
+  );
+}
+
+function ArtistCard({ user, onPlay }) {
+  return (
+    <div className="artist-card" onClick={() => onPlay(user.id)}>
+      <div className={`cover-art neon`} aria-hidden="true">
+        <span>{user.name.slice(0, 2).toUpperCase()}</span>
+      </div>
+      <div>
+        <h3>{user.name}</h3>
+        <p>Artista</p>
+      </div>
+    </div>
+  );
+}
 
 export default function HomePage() {
   const router = useRouter();
   const {
     allTracks, selectedTrack, isPlaying, playTrack, activeMood, setActiveMood,
-    moods, playlistData, recommendedTracks, translate, lang, session
+    moods, playlistData, recommendedTracks, translate, lang, session, history, users, albums
   } = useMusic();
+
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Buenos dias';
+    if (hour < 19) return 'Buenas tardes';
+    return 'Buenas noches';
+  }, []);
+
+  const userName = session?.name?.split(' ')[0] || '';
+
+  const recentlyPlayed = useMemo(() => {
+    const ids = (history || []).slice(0, 8).map((h) => h.trackId);
+    const seen = new Set();
+    return allTracks.filter((t) => ids.includes(t.id) && !seen.has(t.id) && (seen.add(t.id), true));
+  }, [history, allTracks]);
+
+  const trendingTracks = useMemo(() => {
+    const counts = {};
+    (history || []).forEach((item) => {
+      counts[item.trackId] = (counts[item.trackId] || 0) + 1;
+    });
+    return allTracks
+      .filter((t) => counts[t.id])
+      .sort((a, b) => (counts[b.id] || 0) - (counts[a.id] || 0))
+      .slice(0, 8);
+  }, [history, allTracks]);
+
+  const newReleases = useMemo(() => {
+    return [...allTracks].reverse().slice(0, 8);
+  }, [allTracks]);
+
+  const becauseOf = useMemo(() => {
+    const last = (history || [])[0];
+    if (!last) return [];
+    const track = allTracks.find((t) => t.id === last.trackId);
+    if (!track) return [];
+    return allTracks
+      .filter((t) => t.id !== track.id && (t.mood === track.mood || t.genre === track.genre))
+      .slice(0, 6);
+  }, [history, allTracks]);
+
+  const artists = useMemo(() => {
+    const artistNames = [...new Set(allTracks.map((t) => t.artist))];
+    return users.filter((u) => artistNames.includes(u.name)).slice(0, 6);
+  }, [allTracks, users]);
+
+  const pulseTracks = useMemo(() => {
+    return [...allTracks].sort(() => Math.random() - 0.5).slice(0, 5);
+  }, [allTracks]);
 
   return (
     <AppShell>
-      <section className="home-hero">
-        <div className="hero-heading">
-          <span className="eyebrow">{translate('home.playlistOfDay')}</span>
-          <h1>{session ? 'Buenas tardes' : 'Bienvenido a GrooveFlow'}</h1>
-        </div>
-        {!session && (
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '18px', flexWrap: 'wrap' }}>
-            <button type="button" className="primary-btn" onClick={() => router.push('/?auth=true')}>Iniciar sesion</button>
-            <button type="button" className="secondary-btn" onClick={() => router.push('/?auth=true')}>Crear cuenta</button>
-          </div>
-        )}
-        <div className="quick-grid">
-          {(allTracks || []).map((track) => (
-            <button key={track.id} type="button" className={`quick-card ${selectedTrack.id === track.id ? 'selected' : ''}`} onClick={() => playTrack(track.id)}>
-              <div className={`cover-art ${track.accent} quick-cover`} aria-hidden="true">
-                <span>{track.title.slice(0, 1)}</span>
-              </div>
-              <strong>{track.title}</strong>
-              <button type="button" className="quick-play" aria-label={`Reproducir ${track.title}`} onClick={(e) => { e.stopPropagation(); playTrack(track.id); }}>
-                <span aria-hidden="true">{selectedTrack.id === track.id && isPlaying ? '\u275A\u275A' : '\u25B6'}</span>
-              </button>
-            </button>
-          ))}
+      <section className="home-hero" style={{ paddingBottom: '6px' }}>
+        <div className="hero-heading" style={{ marginBottom: '4px' }}>
+          <h1 className="greeting">{greeting}{userName ? `, ${userName}` : ''}</h1>
+          <p className="greeting-sub">Escucha lo que te apetezca.</p>
         </div>
       </section>
 
+      {recentlyPlayed.length > 0 && (
+        <section className="shelf" style={{ paddingTop: '10px' }}>
+          <div className="section-header">
+            <div>
+              <h2>{translate('history.title') || 'Ultimamente reproducido'}</h2>
+            </div>
+          </div>
+          <div className="recently-grid">
+            {recentlyPlayed.map((track) => (
+              <div key={track.id} className="recent-card" onClick={() => playTrack(track.id)}>
+                <div className={`cover-art ${track.accent}`} aria-hidden="true">
+                  <span>{track.title.slice(0, 1)}</span>
+                </div>
+                <div>
+                  <strong>{track.title}</strong>
+                  <span>{track.artist}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="shelf">
-        <div className="section-heading">
+        <div className="section-header">
           <div>
-            <h2>{translate('home.madeForYou')}</h2>
+            <h2>{translate('home.madeForYou') || 'Hecho para ti'}</h2>
             <span>{translate('home.basedOn', { mood: activeMood })}</span>
           </div>
         </div>
-        <div className="playlist-grid">
-          {(playlistData || []).map((playlist, index) => {
+        <div className="home-grid">
+          {(playlistData || []).slice(0, 5).map((playlist, index) => {
             const playlistTrack = (allTracks || [])[index % (allTracks || []).length];
-            const playlistIsPlaying = selectedTrack.id === playlistTrack.id && isPlaying;
             return (
-              <article key={playlist.title} className="playlist-card">
-                <div className={`cover-art ${playlist.accent} playlist-cover`} aria-hidden="true">
-                  <span>{String(index + 1).padStart(2, '0')}</span>
-                </div>
-                <button type="button" className="play-fab" aria-label={`Reproducir ${playlist.title}`} onClick={() => playTrack(playlistTrack.id)}>
-                  <span aria-hidden="true">{playlistIsPlaying ? '\u275A\u275A' : '\u25B6'}</span>
-                </button>
-                <h3>{playlist.title}</h3>
-                <p>{playlist.subtitle}</p>
-              </article>
+              <CoverCard
+                key={playlist.title}
+                track={{ ...playlistTrack, title: playlist.title, artist: playlist.subtitle || 'Playlist', accent: playlist.accent || 'neon' }}
+                selectedTrack={selectedTrack}
+                isPlaying={isPlaying}
+                onPlay={() => playTrack(playlistTrack.id)}
+              />
             );
           })}
         </div>
       </section>
 
-      <section className="shelf">
-        <div className="section-heading">
-          <div>
-            <h2>Recomendado para ti</h2>
-            <span>Personalizado segun tus gustos</span>
-          </div>
-        </div>
-        <div className="table-card">
-          <div className="section-heading compact">
+      {trendingTracks.length > 0 && (
+        <section className="shelf">
+          <div className="section-header">
             <div>
-              <h2>Canciones recomendadas</h2>
-              <span>{(recommendedTracks || []).length} canciones</span>
+              <h2>{translate('home.trending') || 'Lo mas escuchado'}</h2>
+              <span>Tendencias segun tu historial</span>
             </div>
           </div>
-          <div className="track-list">
-            {(recommendedTracks || []).slice(0, 5).map((track, index) => (
-              <button key={track.id} type="button" className={`track-row ${selectedTrack.id === track.id ? 'selected' : ''}`} onClick={() => playTrack(track.id)}>
-                <span className="track-index">{selectedTrack.id === track.id && isPlaying ? '\u25B6' : index + 1}</span>
-                <span className="track-meta">
-                  <div className={`cover-art ${track.accent} track-cover`} aria-hidden="true">
-                    <span>{track.title.slice(0, 1)}</span>
-                  </div>
-                  <span className="track-copy">
-                    <strong>{track.title}</strong>
-                    <span>{track.artist}</span>
-                  </span>
-                </span>
-                <span className="track-album">{track.album}</span>
-                <span className="track-time">{track.duration ? track.duration : ''}</span>
-              </button>
+          <div className="home-grid">
+            {trendingTracks.map((track) => (
+              <CoverCard
+                key={track.id}
+                track={track}
+                selectedTrack={selectedTrack}
+                isPlaying={isPlaying}
+                onPlay={playTrack}
+              />
             ))}
           </div>
+        </section>
+      )}
+
+      <section className="shelf">
+        <div className="section-header">
+          <div>
+            <h2>{translate('home.newReleases') || 'Nuevos lanzamientos'}</h2>
+            <span>Lo mas reciente de Voltage</span>
+          </div>
+        </div>
+        <div className="home-grid">
+          {newReleases.map((track) => (
+            <CoverCard
+              key={track.id}
+              track={track}
+              selectedTrack={selectedTrack}
+              isPlaying={isPlaying}
+              onPlay={playTrack}
+            />
+          ))}
         </div>
       </section>
 
-      <section className="bottom-layout">
-        <aside className="mood-card">
-          <div className="section-heading compact">
+      <section className="shelf">
+        <div className="section-header">
+          <div>
+            <h2>{translate('home.recommended') || 'Recomendado para ti'}</h2>
+            <span>Basado en tus gustos</span>
+          </div>
+        </div>
+        <div className="home-grid">
+          {(recommendedTracks || []).slice(0, 8).map((track) => (
+            <CoverCard
+              key={track.id}
+              track={track}
+              selectedTrack={selectedTrack}
+              isPlaying={isPlaying}
+              onPlay={playTrack}
+            />
+          ))}
+        </div>
+      </section>
+
+      {becauseOf.length > 0 && (
+        <section className="shelf">
+          <div className="section-header">
             <div>
-              <h2>{translate('home.mood')}</h2>
-              <span>{translate('home.moodHint')}</span>
+              <h2>{translate('home.because') || 'Porque escuchaste'}</h2>
+              <span>Basado en tu ultima reproduccion</span>
             </div>
           </div>
-          <div className="tag-list">
-            {(moods || []).map((mood) => (
-              <button key={mood} type="button" className={`mood-tag ${activeMood === mood ? 'active' : ''}`} onClick={() => setActiveMood(mood)}>
-                {mood}
-              </button>
+          <div className="home-grid">
+            {becauseOf.map((track) => (
+              <CoverCard
+                key={track.id}
+                track={track}
+                selectedTrack={selectedTrack}
+                isPlaying={isPlaying}
+                onPlay={playTrack}
+              />
             ))}
           </div>
-        </aside>
+        </section>
+      )}
+
+      {artists.length > 0 && (
+        <section className="shelf">
+          <div className="section-header">
+            <div>
+              <h2>{translate('home.yourArtists') || 'Tus artistas'}</h2>
+            </div>
+          </div>
+          <div className="artist-grid">
+            {artists.map((user) => (
+              <ArtistCard
+                key={user.id}
+                user={user}
+                onPlay={(id) => router.push(`/profile/${id}`)}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="shelf">
+        <div className="section-header">
+          <div>
+            <h2>{translate('home.popularPlaylists') || 'Playlists populares'}</h2>
+          </div>
+        </div>
+        <div className="home-grid">
+          {(playlistData || []).slice(0, 6).map((playlist, index) => {
+            const playlistTrack = (allTracks || [])[index % (allTracks || []).length];
+            return (
+              <CoverCard
+                key={playlist.title}
+                track={{ ...playlistTrack, title: playlist.title, artist: playlist.subtitle || 'Playlist', accent: playlist.accent || 'neon' }}
+                selectedTrack={selectedTrack}
+                isPlaying={isPlaying}
+                onPlay={() => playTrack(playlistTrack.id)}
+              />
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="shelf" style={{ paddingBottom: '110px' }}>
+        <div className="pulse-section">
+          <div className="pulse-header">
+            <span style={{ fontSize: '1.4rem' }}>⚡</span>
+            <div>
+              <h2>Voltage Pulse</h2>
+              <span className="shelf-subtitle">Lo que esta sonando ahora</span>
+            </div>
+          </div>
+          <div className="pulse-list">
+            {pulseTracks.map((track, idx) => (
+              <div key={track.id} className="pulse-item" onClick={() => playTrack(track.id)}>
+                <span className="pulse-rank">{String(idx + 1).padStart(2, '0')}</span>
+                <div className={`cover-art ${track.accent}`} style={{ width: 40, height: 40, borderRadius: 4 }} aria-hidden="true">
+                  <span>{track.title.slice(0, 1)}</span>
+                </div>
+                <div className="pulse-meta">
+                  <strong>{track.title}</strong>
+                  <span>{track.artist}</span>
+                </div>
+                <div className="pulse-bar">
+                  <div className="pulse-bar-fill" style={{ width: `${Math.max(20, 100 - idx * 15)}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
     </AppShell>
   );
