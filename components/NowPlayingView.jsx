@@ -4,6 +4,7 @@ import { useMusic } from '../context/MusicContext';
 import { getLyrics } from '../lib/lyrics';
 import { formatTime } from '../lib/utils';
 import CoverArt from './CoverArt';
+import AudioVisualizer from './AudioVisualizer';
 
 export default function NowPlayingView() {
   const {
@@ -14,7 +15,6 @@ export default function NowPlayingView() {
   if (!nowPlayingOpen) return null;
   const lyrics = getLyrics(selectedTrack.id);
   const progress = duration ? (currentTime / duration) * 100 : 0;
-  const visualizerUrl = selectedTrack.visualizerUrl || '';
 
   return (
     <div className="now-playing-overlay" onClick={() => setNowPlayingOpen(false)}>
@@ -22,9 +22,7 @@ export default function NowPlayingView() {
         <button type="button" className="icon-btn subtle np-close" onClick={() => setNowPlayingOpen(false)}>✕</button>
         <div className="np-body">
           <div className="np-left">
-            <div className="np-visualizer" style={{ '--progress': `${progress}%` }}>
-              <div className="np-bar" /><div className="np-bar" /><div className="np-bar" /><div className="np-bar" /><div className="np-bar" />
-            </div>
+            <AudioVisualizer audioRef={audioRef} isPlaying={isPlaying} accent={selectedTrack.accent} />
             <CoverArt accent={selectedTrack.accent} label={selectedTrack.title.slice(0, 1)} className="np-cover" track={selectedTrack} />
             <h2>{selectedTrack.title}</h2>
             <p>{selectedTrack.artist}</p>
@@ -38,8 +36,8 @@ export default function NowPlayingView() {
             </button>
           </div>
           <div className="np-right">
-            {visualizerUrl ? (
-              <video className="np-video" src={visualizerUrl} autoPlay loop muted playsInline />
+            {selectedTrack.visualizerUrl ? (
+              <video className="np-video" src={selectedTrack.visualizerUrl} autoPlay loop muted playsInline />
             ) : (
               <div className="np-video-placeholder">
                 <span>Visualizador</span>

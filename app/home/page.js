@@ -1,15 +1,36 @@
 'use client';
 
 import { useMemo } from 'react';
+import Image from 'next/image';
 import { useMusic } from '../../context/MusicContext';
 import AppShell from '../../components/AppShell';
 import { useRouter } from 'next/navigation';
+
+const accentColors = {
+  lofi: ['#3252a8', '#5f8cff'],
+  sunset: ['#da4d24', '#f6a33a'],
+  violet: ['#20123b', '#7a4bd8'],
+  forest: ['#094d3b', '#1db954'],
+  neon: ['#031d2f', '#16d2d4'],
+  'cat-pop': ['#b0256b', '#ff4d4d'],
+  'cat-hop': ['#8d67ab', '#c39bd3'],
+  'cat-electro': ['#1e3264', '#3498db'],
+  'cat-indie': ['#e8115b', '#ff6b81'],
+  'cat-rock': ['#ba5d07', '#f39c12'],
+  'cat-latin': ['#148a08', '#2ecc71'],
+  'cat-chill': ['#0d73ec', '#5dade2'],
+  'cat-podcast': ['#777', '#bbb']
+};
 
 function CoverCard({ track, selectedTrack, isPlaying, onPlay }) {
   return (
     <div className="cover-card" onClick={() => onPlay(track.id)}>
       <div className={`cover-art ${track.accent}`} aria-hidden="true">
-        <span>{track.title.slice(0, 1)}</span>
+        {track.coverUrl ? (
+          <img src={track.coverUrl} alt={track.title} loading="lazy" />
+        ) : (
+          <span>{track.title.slice(0, 1)}</span>
+        )}
       </div>
       <button
         type="button"
@@ -29,7 +50,11 @@ function ArtistCard({ user, onPlay }) {
   return (
     <div className="artist-card" onClick={() => onPlay(user.id)}>
       <div className={`cover-art neon`} aria-hidden="true">
-        <span>{user.name.slice(0, 2).toUpperCase()}</span>
+        {user.avatarUrl ? (
+          <img src={user.avatarUrl} alt={user.name} loading="lazy" />
+        ) : (
+          <span>{user.name.slice(0, 2).toUpperCase()}</span>
+        )}
       </div>
       <div>
         <h3>{user.name}</h3>
@@ -39,11 +64,21 @@ function ArtistCard({ user, onPlay }) {
   );
 }
 
+function SkeletonCard() {
+  return (
+    <div className="cover-card" style={{ pointerEvents: 'none' }}>
+      <div className="skeleton-cover" aria-hidden="true" />
+      <div className="skeleton-line short" />
+      <div className="skeleton-line" />
+    </div>
+  );
+}
+
 export default function HomePage() {
   const router = useRouter();
   const {
     allTracks, selectedTrack, isPlaying, playTrack, activeMood, setActiveMood,
-    moods, playlistData, recommendedTracks, translate, lang, session, history, users, albums
+    moods, playlistData, recommendedTracks, translate, lang, session, history, users, albums, hydrated
   } = useMusic();
 
   const greeting = useMemo(() => {
@@ -95,6 +130,23 @@ export default function HomePage() {
     return [...allTracks].sort(() => Math.random() - 0.5).slice(0, 5);
   }, [allTracks]);
 
+  if (!hydrated) {
+    return (
+      <AppShell>
+        <section className="home-hero">
+          <div className="skeleton-line short" style={{ width: 220, height: 28, marginBottom: 14 }} />
+          <div className="skeleton-line" style={{ width: 160, height: 18 }} />
+        </section>
+        <section className="shelf">
+          <div className="skeleton-line short" style={{ width: 180, height: 24, marginBottom: 14 }} />
+          <div className="home-grid">
+            <SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard />
+          </div>
+        </section>
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell>
       <section className="home-hero" style={{ paddingBottom: '6px' }}>
@@ -115,7 +167,11 @@ export default function HomePage() {
             {recentlyPlayed.map((track) => (
               <div key={track.id} className="recent-card" onClick={() => playTrack(track.id)}>
                 <div className={`cover-art ${track.accent}`} aria-hidden="true">
-                  <span>{track.title.slice(0, 1)}</span>
+                  {track.coverUrl ? (
+                    <img src={track.coverUrl} alt={track.title} loading="lazy" />
+                  ) : (
+                    <span>{track.title.slice(0, 1)}</span>
+                  )}
                 </div>
                 <div>
                   <strong>{track.title}</strong>
@@ -140,7 +196,7 @@ export default function HomePage() {
             return (
               <CoverCard
                 key={playlist.title}
-                track={{ ...playlistTrack, title: playlist.title, artist: playlist.subtitle || 'Playlist', accent: playlist.accent || 'neon' }}
+                track={{ ...playlistTrack, title: playlist.title, artist: playlist.subtitle || 'Playlist', accent: playlist.accent || 'neon', coverUrl: playlistTrack.coverUrl || '' }}
                 selectedTrack={selectedTrack}
                 isPlaying={isPlaying}
                 onPlay={() => playTrack(playlistTrack.id)}
@@ -265,7 +321,7 @@ export default function HomePage() {
             return (
               <CoverCard
                 key={playlist.title}
-                track={{ ...playlistTrack, title: playlist.title, artist: playlist.subtitle || 'Playlist', accent: playlist.accent || 'neon' }}
+                track={{ ...playlistTrack, title: playlist.title, artist: playlist.subtitle || 'Playlist', accent: playlist.accent || 'neon', coverUrl: playlistTrack.coverUrl || '' }}
                 selectedTrack={selectedTrack}
                 isPlaying={isPlaying}
                 onPlay={() => playTrack(playlistTrack.id)}
@@ -289,7 +345,11 @@ export default function HomePage() {
               <div key={track.id} className="pulse-item" onClick={() => playTrack(track.id)}>
                 <span className="pulse-rank">{String(idx + 1).padStart(2, '0')}</span>
                 <div className={`cover-art ${track.accent}`} style={{ width: 40, height: 40, borderRadius: 4 }} aria-hidden="true">
-                  <span>{track.title.slice(0, 1)}</span>
+                  {track.coverUrl ? (
+                    <img src={track.coverUrl} alt={track.title} loading="lazy" />
+                  ) : (
+                    <span>{track.title.slice(0, 1)}</span>
+                  )}
                 </div>
                 <div className="pulse-meta">
                   <strong>{track.title}</strong>

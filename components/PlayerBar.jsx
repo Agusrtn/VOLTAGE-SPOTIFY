@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef, useState } from 'react';
 import { useMusic } from '../context/MusicContext';
 import { formatTime } from '../lib/utils';
 import CoverArt from './CoverArt';
@@ -12,12 +13,27 @@ export default function PlayerBar() {
     connectOpen, setConnectOpen, translate, audioRef
   } = useMusic();
 
+  const prevVolumeRef = useRef(volume);
+  const [isMuted, setIsMuted] = useState(false);
+
   const handleProgress = (event) => {
     const nextTime = Number(event.target.value);
     if (audioRef.current) audioRef.current.currentTime = nextTime;
   };
 
   const progress = duration ? Math.min(100, Math.max(0, (currentTime / duration) * 100)) : 0;
+
+  const toggleMute = () => {
+    if (isMuted) {
+      const restore = prevVolumeRef.current || 0.5;
+      setVolume(restore);
+      setIsMuted(false);
+    } else {
+      prevVolumeRef.current = volume;
+      setVolume(0);
+      setIsMuted(true);
+    }
+  };
 
   return (
     <footer className="player-bar">
@@ -62,12 +78,15 @@ export default function PlayerBar() {
 
         <div className="progress-row">
           <span>{formatTime(currentTime)}</span>
-          <div style={{ flex: 1, position: 'relative', height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.1)', cursor: 'pointer' }} onClick={(e) => {
-            const rect = e.currentTarget.getBoundingClientRect();
-            const pct = (e.clientX - rect.left) / rect.width;
-            if (audioRef.current) audioRef.current.currentTime = pct * duration;
-          }}>
-            <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${progress}%`, borderRadius: 2, background: 'var(--text)', transition: 'width 0.1s linear' }} />
+          <div 
+            className="progress-track" 
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+              if (audioRef.current && duration) audioRef.current.currentTime = pct * duration;
+            }}
+          >
+            <div className="progress-fill" style={{ width: `${progress}%` }} />
           </div>
           <span>{formatTime(duration)}</span>
         </div>
@@ -94,9 +113,20 @@ export default function PlayerBar() {
         <button type="button" className="ctrl-btn" aria-label={translate('player.queue')} onClick={() => setQueueOpen((p) => !p)}>
           <span aria-hidden="true">{'\u2630'}</span>
         </button>
+        <button type="button" className="ctrl-btn" aria-label={isMuted ? 'Activar sonido' : 'Silenciar'} onClick={toggleMute}>
+          <span aria-hidden="true">{isMuted ? '\u2715' : (volume === 0 ? '\u266B' : '\u25C9')}</span>
+        </button>
         <div className="volume-wrap">
-          <span aria-hidden="true">{volume === 0 ? '\u266B' : '\u25C9'}</span>
-          <input type="range" min="0" max="1" step="0.05" value={volume} onChange={(e) => setVolume(Number(e.target.value))} />
+          <input 
+            id="volume" 
+            type="range" 
+            min="0" 
+            max="1" 
+            step="0.05" 
+            value={isMuted ? 0 : volume} 
+            onChange={(e) => { setVolume(Number(e.target.value)); if (Number(e.target.value) > 0) setIsMuted(false); }} 
+            aria-label={translate('player.volume')}
+          />
         </div>
       </div>
     </footer>
