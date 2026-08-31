@@ -248,7 +248,11 @@ export function MusicProvider({ children }) {
           ]);
         }
       } finally {
-        if (Array.isArray(tracks)) setUserTracks(tracks);
+        const savedUserTracks = JSON.parse(localStorage.getItem('spotify-clone-user-tracks') || 'null');
+        const baseIds = new Set((tracks || []).map((t) => t.id));
+        const extraUserTracks = Array.isArray(savedUserTracks) ? savedUserTracks.filter((t) => !baseIds.has(t.id)) : [];
+        const mergedTracks = [...(tracks || []), ...extraUserTracks];
+        if (Array.isArray(mergedTracks)) setUserTracks(mergedTracks);
         if (Array.isArray(pls)) setPlaylists(pls);
         if (Array.isArray(albs)) setAlbums(albs);
         if (Array.isArray(likes)) setLikedTrackIds(likes.map((l) => l.trackId));
@@ -274,6 +278,11 @@ export function MusicProvider({ children }) {
     if (!hydrated) return;
     localStorage.setItem('spotify-clone-users', JSON.stringify(users));
   }, [users, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    localStorage.setItem('spotify-clone-user-tracks', JSON.stringify(userTracks));
+  }, [userTracks, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
