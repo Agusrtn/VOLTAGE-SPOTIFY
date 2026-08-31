@@ -6,10 +6,10 @@ import { useMusic } from '../context/MusicContext';
 import { navRoutes } from '../lib/data';
 import CoverArt from './CoverArt';
 
-export default function Sidebar() {
+export default function Sidebar({ onNavClick }) {
   const pathname = usePathname();
   const {
-    session, translate, userPlaylists, setNewPlaylistOpen, router
+    session, translate, userPlaylists, setNewPlaylistOpen
   } = useMusic();
 
   const isActive = (path) => pathname === path || pathname.startsWith(`${path}/`);
@@ -24,25 +24,25 @@ export default function Sidebar() {
 
         <nav className="nav-menu" aria-label="Navegacion principal">
           {navRoutes.map((item) => (
-            <Link key={item.path} href={item.path} className={`nav-item ${isActive(item.path) ? 'active' : ''}`}>
+            <Link key={item.path} href={item.path} className={`nav-item ${isActive(item.path) ? 'active' : ''}`} onClick={onNavClick}>
               <span aria-hidden="true">{item.icon}</span>
               {translate(item.labelKey)}
             </Link>
           ))}
           {(session?.role === 'admin' || session?.role === 'label') && (
-            <Link href="/label" className={`nav-item ${isActive('/label') ? 'active' : ''}`}>
+            <Link href="/label" className={`nav-item ${isActive('/label') ? 'active' : ''}`} onClick={onNavClick}>
               <span aria-hidden="true">&#x266B;</span>
               Discografica
             </Link>
           )}
           {session?.role === 'admin' && (
-            <Link href="/staff" className={`nav-item ${isActive('/staff') ? 'active' : ''}`}>
+            <Link href="/staff" className={`nav-item ${isActive('/staff') ? 'active' : ''}`} onClick={onNavClick}>
               <span aria-hidden="true">&#x2699;</span>
               {translate('nav.staff')}
             </Link>
           )}
           {session && (
-            <Link href={`/profile/${session.id}`} className={`nav-item ${pathname.startsWith(`/profile/${session.id}`) ? 'active' : ''}`}>
+            <Link href={`/profile/${session.id}`} className={`nav-item ${pathname.startsWith(`/profile/${session.id}`) ? 'active' : ''}`} onClick={onNavClick}>
               <span aria-hidden="true">&#x1F464;</span>
               {translate('nav.profile')}
             </Link>
@@ -71,6 +71,7 @@ export default function Sidebar() {
               key={pl.id}
               href={pl.isLikes ? '/playlist/likes' : `/playlist/${pl.id}`}
               className="mini-item"
+              onClick={onNavClick}
             >
               <CoverArt accent={pl.isLikes ? 'cat-pop' : 'sunset'} label={pl.name.slice(0, 1)} className="mini-cover" />
               <span>{pl.name}</span>

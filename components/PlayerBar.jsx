@@ -12,7 +12,7 @@ export default function PlayerBar() {
     isRepeat, setIsRepeat, changeTrack, currentTime, duration, volume, setVolume,
     queueOpen, setQueueOpen, setNowPlayingOpen, lyricsOpen, setLyricsOpen,
     connectOpen, setConnectOpen, playbackRate, setPlaybackRate, activeDevice,
-    setActiveDevice, skipPodcast, translate, audioRef
+    setActiveDevice, skipPodcast, translate, audioRef, setCoverDetailOpen
   } = useMusic();
 
   const handleProgress = (event) => {
@@ -24,7 +24,7 @@ export default function PlayerBar() {
     <aside className="player-bar">
       <div className="now-playing">
         <button type="button" className="now-playing-btn" onClick={() => setNowPlayingOpen(true)}>
-          <CoverArt accent={selectedTrack.accent} label={selectedTrack.title.slice(0, 1)} className="player-thumb" track={selectedTrack} />
+          <CoverArt accent={selectedTrack.accent} label={selectedTrack.title.slice(0, 1)} className="player-thumb" track={selectedTrack} onClick={() => setCoverDetailOpen(true)} />
           <div className="player-info">
             <h3>{selectedTrack.title}</h3>
             <p>{selectedTrack.artist}</p>
