@@ -62,6 +62,14 @@ export default function Topbar() {
             <button
               type="button"
               className="icon-btn subtle"
+              aria-label={translate('common.settings')}
+              onClick={() => setSettingsOpen((p) => !p)}
+            >
+              <span aria-hidden="true">{'\u2699'}</span>
+            </button>
+            <button
+              type="button"
+              className="icon-btn subtle"
               aria-label={translate('common.theme')}
               onClick={() => setSettings((prev) => ({ ...prev, theme: prev.theme === 'dark' ? 'light' : 'dark' }))}
             >

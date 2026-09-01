@@ -15,6 +15,8 @@ export default function StaffPage() {
   const [newPlaylistCover, setNewPlaylistCover] = useState('');
   const [selectedTracks, setSelectedTracks] = useState([]);
   const [expandedPlaylist, setExpandedPlaylist] = useState(null);
+  const [userSearch, setUserSearch] = useState('');
+  const [filterRole, setFilterRole] = useState('all');
 
   const isStaff = session?.role === 'admin' || session?.role === 'label';
 
@@ -99,7 +101,65 @@ export default function StaffPage() {
 
           {session?.role === 'admin' && (
             <div className="staff-section">
+              <h2>Usuarios en linea</h2>
+              <div className="online-users-grid">
+                {users.filter((u) => u.id !== session?.id).map((user) => (
+                  <div key={user.id} className="online-user-card" style={{
+                    padding: '12px',
+                    background: 'var(--surface-soft)',
+                    borderRadius: '8px',
+                    cursor: 'pointer'
+                  }} onClick={() => router.push(`/profile/${user.id}`)}>
+                    <div style={{ fontSize: '24px', marginBottom: '8px' }}>
+                      {user.avatarUrl ? <img src={user.avatarUrl} alt={user.name} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} /> : <span style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--accent)', borderRadius: '50%' }}>{user.name?.slice(0, 2).toUpperCase()}</span>}
+                    </div>
+                    <strong>{user.name}</strong>
+                    <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--muted)' }}>{user.role}</span>
+                    {user.isVerified && <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--accent)' }}>✓ Verificado</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {session?.role === 'admin' && (
+            <div className="staff-section">
               <h2>Cuentas de usuario</h2>
+              <div style={{ marginBottom: '16px', display: 'flex', gap: '12px' }}>
+                <input
+                  type="text"
+                  placeholder="Buscar usuario..."
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                  style={{
+                    flex: 1,
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    background: 'var(--surface)',
+                    color: 'var(--text)',
+                    fontFamily: 'inherit'
+                  }}
+                />
+                <select
+                  value={filterRole}
+                  onChange={(e) => setFilterRole(e.target.value)}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    background: 'var(--surface)',
+                    color: 'var(--text)',
+                    fontFamily: 'inherit'
+                  }}
+                >
+                  <option value="all">Todos</option>
+                  <option value="user">Usuario</option>
+                  <option value="artist">Artista</option>
+                  <option value="label">Discografica</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
               <div className="staff-table-wrap">
                 <div className="staff-table-head">
                   <span>Nombre</span>
@@ -109,7 +169,21 @@ export default function StaffPage() {
                   <span>Acciones</span>
                 </div>
                 <div className="staff-table-body">
-                  {users.map((user) => (
+                  {users
+                    .filter((user) => {
+                      const matchesSearch =
+                        user.name.toLowerCase().includes(userSearch.toLowerCase()) ||
+                        user.email.toLowerCase().includes(userSearch.toLowerCase());
+                      const matchesFilter = filterRole === 'all' || user.role === filterRole;
+                      return matchesSearch && matchesFilter;
+                    })
+                    .sort((a, b) => {
+                      // Usuarios logeados primero
+                      if (a.id === session?.id) return -1;
+                      if (b.id === session?.id) return 1;
+                      return 0;
+                    })
+                    .map((user) => (
                     <div key={user.id} className="staff-table-row">
                       <span className="staff-user-name">{user.name}</span>
                       <span className="staff-user-email">{user.email}</span>

@@ -183,7 +183,10 @@ export default function Modals() {
       {settingsOpen && (
         <div className="track-detail-overlay" onClick={() => setSettingsOpen(false)}>
           <div className="track-detail-modal settings-panel" onClick={(e) => e.stopPropagation()}>
-            <h2>Configuracion</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2 style={{ margin: 0 }}>Configuracion</h2>
+              <button type="button" className="icon-btn subtle np-close" onClick={() => setSettingsOpen(false)}>✕</button>
+            </div>
             <div className="settings-layout">
               <div className="settings-section">
                 <h2>Apariencia</h2>
@@ -193,7 +196,7 @@ export default function Modals() {
                 </div>
                 <div className="settings-row">
                   <label>Idioma</label>
-                  <select value={settings.language} onChange={(e) => setSettings((p) => ({ ...p, language: e.target.value }))}>
+                  <select value={settings.language} onChange={(e) => setSettings((p) => ({ ...p, language: e.target.value }))} style={{ minHeight: '36px', padding: '8px', borderRadius: '4px', background: 'var(--surface)', color: 'var(--text)', border: '1px solid rgba(255,255,255,0.12)', fontFamily: 'inherit' }}>
                     <option value="es">Espanol</option>
                     <option value="en">English</option>
                   </select>
