@@ -22,10 +22,18 @@ const accentColors = {
   'cat-podcast': ['#777', '#bbb']
 };
 
-function CoverCard({ track, selectedTrack, isPlaying, onPlay }) {
+function CoverCard({ track, selectedTrack, isPlaying, onPlay, onCoverClick }) {
   return (
-    <div className="cover-card" onClick={() => onPlay(track.id)}>
-      <div className={`cover-art ${track.accent}`} aria-hidden="true">
+    <div className="cover-card">
+      <div 
+        className={`cover-art ${track.accent}`} 
+        aria-hidden="true" 
+        onClick={() => {
+          onPlay(track.id);
+          onCoverClick?.();
+        }}
+        style={{ cursor: 'pointer' }}
+      >
         {track.coverUrl ? (
           <img src={track.coverUrl} alt={track.title} loading="lazy" />
         ) : (
@@ -78,7 +86,7 @@ export default function HomePage() {
   const router = useRouter();
   const {
     allTracks, selectedTrack, isPlaying, playTrack, activeMood, setActiveMood,
-    moods, playlists, recommendedTracks, translate, lang, session, history, users, albums, hydrated
+    moods, playlists, recommendedTracks, translate, lang, session, history, users, albums, hydrated, setNowPlayingOpen
   } = useMusic();
 
   const greeting = useMemo(() => {
@@ -209,6 +217,7 @@ export default function HomePage() {
                 selectedTrack={selectedTrack}
                 isPlaying={isPlaying}
                 onPlay={() => playTrack(playlistTrack.id)}
+                onCoverClick={() => setNowPlayingOpen(true)}
               />
             );
           })}
@@ -231,6 +240,7 @@ export default function HomePage() {
                 selectedTrack={selectedTrack}
                 isPlaying={isPlaying}
                 onPlay={playTrack}
+                onCoverClick={() => setNowPlayingOpen(true)}
               />
             ))}
           </div>
@@ -252,6 +262,7 @@ export default function HomePage() {
               selectedTrack={selectedTrack}
               isPlaying={isPlaying}
               onPlay={playTrack}
+              onCoverClick={() => setNowPlayingOpen(true)}
             />
           ))}
         </div>
@@ -272,6 +283,7 @@ export default function HomePage() {
               selectedTrack={selectedTrack}
               isPlaying={isPlaying}
               onPlay={playTrack}
+              onCoverClick={() => setNowPlayingOpen(true)}
             />
           ))}
         </div>
@@ -293,6 +305,7 @@ export default function HomePage() {
                 selectedTrack={selectedTrack}
                 isPlaying={isPlaying}
                 onPlay={playTrack}
+                onCoverClick={() => setNowPlayingOpen(true)}
               />
             ))}
           </div>
@@ -336,6 +349,7 @@ export default function HomePage() {
                 selectedTrack={selectedTrack}
                 isPlaying={isPlaying}
                 onPlay={() => playTrack(playlistTrack.id)}
+                onCoverClick={() => setNowPlayingOpen(true)}
               />
             );
           })}

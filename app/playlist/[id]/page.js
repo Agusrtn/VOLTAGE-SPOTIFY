@@ -1,5 +1,6 @@
 'use client';
 
+import { notFound } from 'next/navigation';
 import { useMusic } from '../../../context/MusicContext';
 import AppShell from '../../../components/AppShell';
 import TrackTable from '../../../components/TrackTable';
