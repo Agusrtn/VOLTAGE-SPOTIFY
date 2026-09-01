@@ -286,7 +286,18 @@ export function MusicProvider({ children }) {
 
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem('spotify-clone-user-tracks', JSON.stringify(userTracks));
+    try {
+      const payload = JSON.stringify(userTracks);
+      if (payload.length > 2 * 1024 * 1024) {
+        const reduced = userTracks.map(({ url, ...rest }) => rest);
+        localStorage.setItem('spotify-clone-user-tracks', JSON.stringify(reduced));
+      } else {
+        localStorage.setItem('spotify-clone-user-tracks', payload);
+      }
+    } catch (e) {
+      console.warn('localStorage quota exceeded, clearing old user tracks');
+      localStorage.removeItem('spotify-clone-user-tracks');
+    }
   }, [userTracks, hydrated]);
 
   useEffect(() => {
