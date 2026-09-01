@@ -176,18 +176,23 @@ export function MusicProvider({ children }) {
     const savedTheme = localStorage.getItem('grooveflow-theme') || 'dark';
     const savedLanguage = localStorage.getItem('grooveflow-language') || 'es';
 
+    // Always merge default users with saved users to ensure new accounts are always available
+    let mergedUsers = [...defaultUsers];
     if (Array.isArray(savedUsers) && savedUsers.length) {
-      const migrated = savedUsers.map((user) => ({
-        ...user,
-        role: user.role || 'user',
-        isVerified: user.isVerified ?? false
-      }));
-      if (!migrated.some((user) => user.role === 'admin')) {
-        migrated.unshift(defaultUsers[0]);
-      }
-      setUsers(migrated);
-      localStorage.setItem('spotify-clone-users', JSON.stringify(migrated));
+      // Add saved users that are not in default users
+      const defaultEmails = defaultUsers.map((u) => u.email.toLowerCase());
+      const newUsers = savedUsers.filter((u) => !defaultEmails.includes(u.email.toLowerCase()));
+      mergedUsers = [...mergedUsers, ...newUsers];
     }
+    
+    const migrated = mergedUsers.map((user) => ({
+      ...user,
+      role: user.role || 'user',
+      isVerified: user.isVerified ?? false
+    }));
+    
+    setUsers(migrated);
+    localStorage.setItem('spotify-clone-users', JSON.stringify(migrated));
 
     const savedSession = JSON.parse(localStorage.getItem('spotify-clone-session') || 'null');
     if (savedSession?.email) setSession(savedSession);
