@@ -13,7 +13,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const {
     users, session, allTracks, playlists, albums, history, followingIds,
-    handleFollowToggle, openShare, setProfileEdit, setProfileEditOpen, translate
+    handleFollowToggle, openShare, setProfileEdit, setProfileEditOpen, translate, setSettingsOpen
   } = useMusic();
 
   const profileUser = users.find((u) => u.id === Number(params?.id));
@@ -79,7 +79,7 @@ export default function ProfilePage() {
                   }}>
                     Editar perfil
                   </button>
-                  <button type="button" className="secondary-btn" style={{ alignSelf: 'flex-start' }} onClick={() => router.push('/settings')}>
+                  <button type="button" className="secondary-btn" style={{ alignSelf: 'flex-start' }} onClick={() => setSettingsOpen(true)}>
                     Configuracion
                   </button>
                 </>
