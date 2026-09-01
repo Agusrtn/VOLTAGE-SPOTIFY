@@ -11,7 +11,7 @@ export default function Modals() {
     newAlbumOpen, setNewAlbumOpen, newAlbum, setNewAlbum, selectedTrackIdsForAlbum, setSelectedTrackIdsForAlbum, users, createAlbum,
     settingsOpen, setSettingsOpen, settings, setSettings,
     shareOpen, setShareOpen, shareData, setShareData,
-    session
+    session, logout, translate
   } = useMusic();
 
   return (
@@ -241,6 +241,14 @@ export default function Modals() {
                     document.getElementById('new-password').value = '';
                     document.getElementById('confirm-password').value = '';
                   }}>Guardar contrasena</button>
+                </div>
+                <div className="settings-row" style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.12)' }}>
+                  <button type="button" className="staff-btn-warn" style={{ width: '100%' }} onClick={() => {
+                    if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                      logout();
+                      setSettingsOpen(false);
+                    }
+                  }}>Cerrar sesion</button>
                 </div>
               </div>
             </div>
