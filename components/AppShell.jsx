@@ -27,7 +27,7 @@ const accentGradients = {
 };
 
 export default function AppShell({ children }) {
-  const { selectedTrack, setQueueOpen, setNowPlayingOpen, setLyricsOpen, setConnectOpen, setSettingsOpen, setNotificationsOpen, setTrackDetailOpen, setProfileEditOpen, setNewPlaylistOpen, setNewAlbumOpen, setShareOpen } = useMusic();
+  const { selectedTrack, setQueueOpen, setNowPlayingOpen, setLyricsOpen, setConnectOpen, setSettingsOpen, setNotificationsOpen, setTrackDetailOpen, setProfileEditOpen, setNewPlaylistOpen, setNewAlbumOpen, setShareOpen, nowPlayingOpen } = useMusic();
 
   const contentStyle = useMemo(() => {
     const gradient = accentGradients[selectedTrack?.accent] || 'linear-gradient(180deg, rgba(72,72,72,0.25) 0, rgba(18,18,18,0) 260px)';
@@ -54,13 +54,13 @@ export default function AppShell({ children }) {
       <main className="content-panel" style={contentStyle}>
         <Topbar />
         {children}
+        {nowPlayingOpen && <NowPlayingView />}
       </main>
       <footer className="player-bar">
         <PlayerBar />
       </footer>
       <BottomNav />
       <QueuePanel />
-      <NowPlayingView />
       <Modals />
     </div>
   );

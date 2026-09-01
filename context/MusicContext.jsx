@@ -64,12 +64,12 @@ export function MusicProvider({ children }) {
   const [customQueue, setCustomQueue] = useState(null);
   const [likedTrackIds, setLikedTrackIds] = useState([]);
   const [trackDetailOpen, setTrackDetailOpen] = useState(false);
-  const [editTrack, setEditTrack] = useState({ id: null, title: '', album: '', accent: 'neon', coverUrl: '', genre: '', mood: '', isPodcast: false, visualizerUrl: '' });
+  const [editTrack, setEditTrack] = useState({ id: null, title: '', album: '', accent: 'neon', coverUrl: '', genre: '', mood: '', isPodcast: false, visualizerUrl: '', collaborators: '', lyrics: '' });
   const [trackViewOpen, setTrackViewOpen] = useState(false);
   const [viewTrackId, setViewTrackId] = useState(null);
   const audioRef = useRef(null);
   const [userTracks, setUserTracks] = useState([]);
-  const [uploadForm, setUploadForm] = useState({ artistId: '', title: '', album: '', genre: '', mood: '', isPodcast: false, coverUrl: '', visualizerUrl: '', file: null });
+  const [uploadForm, setUploadForm] = useState({ artistId: '', title: '', album: '', genre: '', mood: '', isPodcast: false, coverUrl: '', visualizerUrl: '', file: null, collaborators: '', lyrics: '' });
   const [playlists, setPlaylists] = useState([]);
   const [albums, setAlbums] = useState([]);
   const [profileEditOpen, setProfileEditOpen] = useState(false);
@@ -589,11 +589,16 @@ export function MusicProvider({ children }) {
       coverUrl: uploadForm.coverUrl || '',
       visualizerUrl: uploadForm.visualizerUrl || '',
       isPodcast: uploadForm.isPodcast || false,
+      collaborators: (uploadForm.collaborators || '')
+        .split(',')
+        .map((name) => name.trim())
+        .filter(Boolean),
+      lyrics: uploadForm.lyrics || '',
       url
     };
     await saveTrack(newTrack);
     setUserTracks((prev) => [...prev, newTrack]);
-    setUploadForm({ artistId: '', title: '', album: '', genre: '', mood: '', isPodcast: false, coverUrl: '', visualizerUrl: '', file: null });
+    setUploadForm({ artistId: '', title: '', album: '', genre: '', mood: '', isPodcast: false, coverUrl: '', visualizerUrl: '', file: null, collaborators: '', lyrics: '' });
 
     const followers = await getFollowersOf(artist.id);
     for (const followerId of followers) {
@@ -646,6 +651,10 @@ export function MusicProvider({ children }) {
   };
 
   const saveTrackEdit = async () => {
+    const collaborators = (editTrack.collaborators || '')
+      .split(',')
+      .map((name) => name.trim())
+      .filter(Boolean);
     const updated = {
       title: editTrack.title,
       album: editTrack.album,
@@ -654,7 +663,9 @@ export function MusicProvider({ children }) {
       genre: editTrack.genre || '',
       mood: editTrack.mood || '',
       isPodcast: editTrack.isPodcast || false,
-      visualizerUrl: editTrack.visualizerUrl || ''
+      visualizerUrl: editTrack.visualizerUrl || '',
+      collaborators,
+      lyrics: editTrack.lyrics || ''
     };
     if (userTracks.some((t) => t.id === editTrack.id)) {
       setUserTracks((prev) => prev.map((track) => (track.id === editTrack.id ? { ...track, ...updated } : track)));

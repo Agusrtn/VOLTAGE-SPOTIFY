@@ -55,6 +55,14 @@ export default function Modals() {
                 Visualizador (URL de video MP4)
                 <input type="text" value={editTrack.visualizerUrl} onChange={(e) => setEditTrack((p) => ({ ...p, visualizerUrl: e.target.value }))} placeholder="https://...video.mp4" />
               </label>
+              <label>
+                Colaboradores (nombres separados por comas)
+                <input type="text" value={editTrack.collaborators || ''} onChange={(e) => setEditTrack((p) => ({ ...p, collaborators: e.target.value }))} placeholder="Nombre1, Nombre2" />
+              </label>
+              <label>
+                Letra / Descripcion
+                <textarea value={editTrack.lyrics || ''} onChange={(e) => setEditTrack((p) => ({ ...p, lyrics: e.target.value }))} placeholder="Escribe la letra o descripcion aqui..." rows={4} style={{ minHeight: 90, padding: '10px 12px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.12)', background: '#121212', color: 'var(--text)', font: 'inherit' }} />
+              </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                 <input type="checkbox" checked={editTrack.isPodcast} onChange={(e) => setEditTrack((p) => ({ ...p, isPodcast: e.target.checked }))} />
                 <span>Marcar como podcast / audio hablado</span>

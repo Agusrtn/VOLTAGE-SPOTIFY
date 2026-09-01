@@ -59,7 +59,7 @@ export default function StaffPage() {
         </div>
 
         <div className="staff-layout">
-          {session?.role === 'admin' && (
+          {(session?.role === 'admin' || session?.role === 'label') && (
             <div className="staff-section">
               <h2>Estadisticas</h2>
               <div className="stats-grid">
@@ -99,7 +99,7 @@ export default function StaffPage() {
             </div>
           )}
 
-          {session?.role === 'admin' && (
+          {(session?.role === 'admin' || session?.role === 'label') && (
             <div className="staff-section">
               <h2>Usuarios en linea</h2>
               <div className="online-users-grid">
