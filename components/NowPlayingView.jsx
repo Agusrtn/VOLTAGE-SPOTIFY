@@ -26,12 +26,15 @@ export default function NowPlayingView() {
         <div className="np-left">
           <button type="button" className="icon-btn subtle np-close" onClick={() => setNowPlayingOpen(false)}>✕</button>
           <CoverArt accent={selectedTrack.accent} label={selectedTrack.title.slice(0, 1)} className="np-cover" track={selectedTrack} />
-          <h2>{selectedTrack.title}</h2>
-          {artistUser ? (
-            <button type="button" className="artist-link" onClick={() => router.push(`/profile/${artistUser.id}`)}>{selectedTrack.artist}</button>
-          ) : (
-            <p>{selectedTrack.artist}</p>
-          )}
+          <div className="np-info">
+            <h2>{selectedTrack.title}</h2>
+            {artistUser ? (
+              <button type="button" className="artist-link" onClick={() => router.push(`/profile/${artistUser.id}`)}>{selectedTrack.artist}</button>
+            ) : (
+              <p>{selectedTrack.artist}</p>
+            )}
+            <p className="np-meta">{selectedTrack.album || 'Sin album'} {selectedTrack.year ? `• ${selectedTrack.year}` : ''}</p>
+          </div>
           {collaborators.length > 0 && (
             <div className="np-collaborators">
               <span className="np-collaborators-label">Colaboradores</span>

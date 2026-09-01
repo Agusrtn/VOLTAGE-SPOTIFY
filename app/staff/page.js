@@ -122,7 +122,7 @@ export default function StaffPage() {
             </div>
           )}
 
-          {session?.role === 'admin' && (
+          {(session?.role === 'admin' || session?.role === 'label') && (
             <div className="staff-section">
               <h2>Cuentas de usuario</h2>
               <div style={{ marginBottom: '16px', display: 'flex', gap: '12px' }}>
@@ -213,9 +213,11 @@ export default function StaffPage() {
                 </div>
               </div>
               <div className="staff-section-actions" style={{ marginTop: '12px' }}>
-                <button type="button" className="staff-btn staff-btn-warn" onClick={async () => { await deleteAllTracks(); window.location.reload(); }}>
-                  Borrar todas las canciones
-                </button>
+                {(session?.role === 'admin' || session?.role === 'label') && (
+                  <button type="button" className="staff-btn staff-btn-warn" onClick={async () => { await deleteAllTracks(); window.location.reload(); }}>
+                    Borrar todas las canciones
+                  </button>
+                )}
               </div>
             </div>
           )}
